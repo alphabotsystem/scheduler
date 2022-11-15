@@ -86,7 +86,7 @@ class Scheduler(object):
 
 					async for post in guild.stream():
 						data = post.to_dict()
-						if int(data["start"] / 60) % int(data["period"]) != int(time() / 60) % int(data["period"]): continue
+						if data["start"] > time() or int(data["start"] / 60) % data["period"] != int(time() / 60) % data["period"]: continue
 
 						[accountId, user, guild] = await gather(
 							self.accountProperties.match(data["authorId"]),
@@ -176,7 +176,7 @@ class Scheduler(object):
 			files=files,
 			embeds=embeds,
 			username="Alpha",
-			avatar_url=static_storage.icon,
+			avatar_url="https://cdn.discordapp.com/app-icons/401328409499664394/326e5bef971f8227de79c09d82031dda.png",
 			wait=False
 		)
 
