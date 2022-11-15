@@ -1,0 +1,7 @@
+google-cloud-error-reporting>=1.6.3
+google-cloud-firestore>=2.7.2
+ccxt>=2.0.69
+pytz>=2022.5
+aiohttp>=3.8.3
+orjson>=3.8.1
+discord.py[speed]>=2.0.1
