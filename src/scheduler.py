@@ -16,6 +16,7 @@ from discord import Webhook, Embed, File
 from google.cloud.firestore import AsyncClient as FirestoreClient
 from google.cloud.error_reporting import Client as ErrorReportingClient
 
+from helpers import constants
 from assets import static_storage
 from Processor import process_chart_arguments, process_task
 from DatabaseConnector import DatabaseConnector
@@ -172,6 +173,12 @@ class Scheduler(object):
 			if environ["PRODUCTION"]: self.logging.report_exception()
 
 	async def push_post(self, session, files, embeds, data):
+		content = None
+		if data.get("message") is not None:
+			embeds.append(Embed(description=data.get("message"), color=constants.colors["purple"]))
+		if data.get("tag") is not None:
+			content = f"<@&{message.get('tag')}>"
+
 		await Webhook.from_url(data["url"], session=session).send(
 			files=files,
 			embeds=embeds,
