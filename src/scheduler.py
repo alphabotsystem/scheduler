@@ -132,9 +132,8 @@ class Scheduler(object):
 			)
 
 			if data["command"] == "chart":
-				defaultPlatforms = request.get_platform_order_for("c")
-
-				responseMessage, task = await process_chart_arguments(data["arguments"][1:], defaultPlatforms, tickerId=data["arguments"][0].upper())
+				platforms = request.get_platform_order_for("c")
+				responseMessage, task = await process_chart_arguments(data["arguments"][1:], platforms, tickerId=data["arguments"][0].upper())
 
 				if responseMessage is not None:
 					description = "[Advanced Charting add-on](https://www.alphabotsystem.com/pro/advanced-charting) unlocks additional assets, indicators, timeframes and more." if responseMessage.endswith("add-on.") else "Detailed guide with examples is available on [our website](https://www.alphabotsystem.com/features/charting)."
