@@ -180,6 +180,7 @@ class Scheduler(object):
 			content = f"<@&{message.get('tag')}>"
 
 		await Webhook.from_url(data["url"], session=session).send(
+			content=content,
 			files=files,
 			embeds=embeds,
 			username="Alpha",
