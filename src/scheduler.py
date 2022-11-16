@@ -95,22 +95,33 @@ class Scheduler(object):
 							self.guildProperties.get(guildId, {})
 						)
 
+						request = CommandRequest(
+							accountId=accountId,
+							authorId=data["authorId"],
+							channelId=data["channelId"],
+							guildId=guildId,
+							accountProperties=user,
+							guildProperties=guild
+						)
+
+						if not request.scheduled_posting_available(): continue
+
 						subscriptions = sorted(user["customer"]["subscriptions"].keys())
 						key = f"{data['authorId']} {subscriptions} {' '.join(data['arguments'])}"
 						if key in requestMap:
 							requestMap[key][1].append(len(requests))
 						else:
 							requestMap[key] = [
-								create_task(self.process_request(session, guildId, accountId, user, guild, data)),
+								create_task(self.process_request(session, request, data)),
 								[len(requests)]
 							]
-						requests.append((guildId, data))
+						requests.append(data)
 
 				tasks = []
 				for key, [request, indices] in requestMap.items():
 					files, embeds = await request
 					for i in indices:
-						(guildId, data) = requests[i]
+						data = requests[i]
 						tasks.append(create_task(self.push_post(session, files, embeds, data)))
 				if len(tasks) > 0: await wait(tasks)
 
@@ -120,17 +131,8 @@ class Scheduler(object):
 				print(format_exc())
 				if environ["PRODUCTION"]: self.logging.report_exception()
 
-	async def process_request(self, session, guildId, accountId, user, guild, data):
+	async def process_request(self, session, request, data):
 		try:
-			request = CommandRequest(
-				accountId=accountId,
-				authorId=data["authorId"],
-				channelId=data["channelId"],
-				guildId=guildId,
-				accountProperties=user,
-				guildProperties=guild
-			)
-
 			if data["command"] == "chart":
 				platforms = request.get_platform_order_for("c")
 				responseMessage, task = await process_chart_arguments(data["arguments"][1:], platforms, tickerId=data["arguments"][0].upper())
