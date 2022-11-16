@@ -18,7 +18,7 @@ from google.cloud.error_reporting import Client as ErrorReportingClient
 
 from helpers import constants
 from assets import static_storage
-from Processor import process_chart_arguments, process_task
+from Processor import process_chart_arguments, process_heatmap_arguments, process_task
 from DatabaseConnector import DatabaseConnector
 from CommandRequest import CommandRequest
 from helpers.utils import seconds_until_cycle, get_accepted_timeframes
@@ -164,6 +164,34 @@ class Scheduler(object):
 					currentTask = task.get(task.get("currentPlatform"))
 					files.append(File(payload.get("data"), filename="{:.0f}-{}-{}.png".format(time() * 1000, request.authorId, randint(1000, 9999))))
 
+				return files, embeds
+
+			elif data["command"] == "heatmap":
+				platforms = request.get_platform_order_for("hmap", assetType=data["arguments"][0])
+				responseMessage, task = await process_heatmap_arguments(data["arguments"], platforms)
+
+				if responseMessage is not None:
+					embed = Embed(title=responseMessage, description="Detailed guide with examples is available on [our website](https://www.alphabotsystem.com/features/heatmaps).", color=constants.colors["gray"])
+					embed.set_author(name="Invalid argument", icon_url=static_storage.icon_bw)
+					try: await ctx.interaction.edit_original_response(embed=embed)
+					except NotFound: pass
+					return
+
+				currentTask = task.get(task.get("currentPlatform"))
+				timeframes = task.pop("timeframes")
+				for p, t in timeframes.items(): task[p]["currentTimeframe"] = t[0]
+
+				payload, responseMessage = await process_task(task, "heatmap")
+
+				files, embeds = [], []
+				if payload is None:
+					errorMessage = "Requested heatmap is not available." if responseMessage is None else responseMessage
+					embed = Embed(title=errorMessage, color=constants.colors["gray"])
+					embed.set_author(name="Heatmap not available", icon_url=static_storage.icon_bw)
+					embeds.append(embed)
+				else:
+					files.append(File(payload.get("data"), filename="{:.0f}-{}-{}.png".format(time() * 1000, request.authorId, randint(1000, 9999))))
+				
 				return files, embeds
 
 		except (KeyboardInterrupt, SystemExit): pass
