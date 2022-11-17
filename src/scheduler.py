@@ -2,11 +2,11 @@ from os import environ
 environ["PRODUCTION"] = environ["PRODUCTION"] if "PRODUCTION" in environ and environ["PRODUCTION"] else ""
 
 from signal import signal, SIGINT, SIGTERM
-from time import time, sleep
+from time import time
 from random import randint
 from datetime import datetime
 from aiohttp import TCPConnector, ClientSession
-from asyncio import wait, run, gather, create_task
+from asyncio import sleep, wait, run, gather, create_task
 from orjson import dumps, OPT_SORT_KEYS
 from uuid import uuid4
 from pytz import utc
@@ -55,7 +55,7 @@ class Scheduler(object):
 	async def run(self):
 		while self.isServiceAvailable:
 			try:
-				sleep(seconds_until_cycle())
+				await sleep(seconds_until_cycle())
 				t = datetime.now().astimezone(utc)
 				timeframes = get_accepted_timeframes(t)
 
