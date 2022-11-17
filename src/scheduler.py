@@ -95,6 +95,9 @@ class Scheduler(object):
 							self.guildProperties.get(guildId, {})
 						)
 
+						if not guild: await post.reference.delete()
+						if guild.get("stale", {}).get("count", 0) > 0: continue
+
 						request = CommandRequest(
 							accountId=accountId,
 							authorId=data["authorId"],
