@@ -7,8 +7,6 @@ from random import randint
 from datetime import datetime
 from aiohttp import TCPConnector, ClientSession
 from asyncio import sleep, wait, run, gather, create_task
-from orjson import dumps, OPT_SORT_KEYS
-from uuid import uuid4
 from pytz import utc
 from traceback import format_exc
 
