@@ -26,5 +26,10 @@ spec:
         env:
           - name: PRODUCTION
             value: "1"
+          - name: IEXC_KEY
+            valueFrom:
+              secretKeyRef:
+                name: alpha-credentials
+                key: IEXC_KEY
         ports:
           - containerPort: 6906

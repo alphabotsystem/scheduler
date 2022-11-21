@@ -87,6 +87,19 @@ class Scheduler(object):
 						data = post.to_dict()
 						if data["start"] > time() or int(data["start"] / 60) % data["period"] != int(time() / 60) % data["period"]: continue
 
+						if data.get("exclude") == "outside market hours":
+							today = datetime.now().astimezone(utc).replace(hour=0, minute=0, second=0, microsecond=0)
+							yesterday = today - timedelta(days=1)
+							startTime = yesterday.strftime("%Y%m%d")
+							url = f"https://cloud.iexapis.com/stable/ref-data/us/dates/trade/next/1/{startTime}?token={environ['IEXC_KEY']}"
+							async with session.get() as resp:
+								if resp.status != 200: continue
+								data = await resp.json()
+								if data[0]["date"] != today.strftime("%Y-%m-%d"): continue
+						elif data.get("exclude") == "weekends":
+							weekday = datetime.now().astimezone(utc).weekday()
+							if weekday == 5 or weekday == 6: continue
+
 						[accountId, user, guild] = await gather(
 							self.accountProperties.match(data["authorId"]),
 							self.accountProperties.get(str(data["authorId"]), {}),
@@ -113,7 +126,7 @@ class Scheduler(object):
 							requestMap[key][1].append(len(requests))
 						else:
 							requestMap[key] = [
-								create_task(self.process_request(session, request, data)),
+								create_task(self.process_request(request, data)),
 								[len(requests)]
 							]
 						requests.append(data)
@@ -132,7 +145,7 @@ class Scheduler(object):
 				print(format_exc())
 				if environ["PRODUCTION"]: self.logging.report_exception()
 
-	async def process_request(self, session, request, data):
+	async def process_request(self, request, data):
 		try:
 			if data["command"] == "chart":
 				platforms = request.get_platform_order_for("c")
