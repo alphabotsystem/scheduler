@@ -88,8 +88,9 @@ class Scheduler(object):
 						if data["start"] > time() or int(data["start"] / 60) % data["period"] != int(time() / 60) % data["period"]: continue
 
 						if data.get("exclude") == "outside market hours":
-							today = datetime.now().astimezone(utc).replace(hour=0, minute=0, second=0, microsecond=0)
-							yesterday = today - timedelta(days=1)
+							today = datetime.now().astimezone(utc)
+							if today.hour < 14 or (today.hour == 14 and today.minute < 30) or today.hour > 21: continue
+							yesterday = today.replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=1)
 							startTime = yesterday.strftime("%Y%m%d")
 							url = f"https://cloud.iexapis.com/stable/ref-data/us/dates/trade/next/1/{startTime}?token={environ['IEXC_KEY']}"
 							async with session.get() as resp:
