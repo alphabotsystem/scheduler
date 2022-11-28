@@ -153,7 +153,7 @@ class Scheduler(object):
 				responseMessage, task = await process_chart_arguments(data["arguments"][1:], platforms, tickerId=data["arguments"][0].upper(), defaults=request.guildProperties["charting"])
 
 				if responseMessage is not None:
-					description = "[Advanced Charting add-on](https://www.alphabotsystem.com/pro/advanced-charting) unlocks additional assets, indicators, timeframes and more." if responseMessage.endswith("add-on.") else "Detailed guide with examples is available on [our website](https://www.alphabotsystem.com/features/charting)."
+					description = "[Advanced Charting add-on](https://www.alpha.bot/pro/advanced-charting) unlocks additional assets, indicators, timeframes and more." if responseMessage.endswith("add-on.") else "Detailed guide with examples is available on [our website](https://www.alpha.bot/features/charting)."
 					embed = Embed(title=responseMessage, description=description, color=constants.colors["gray"])
 					embed.set_author(name="Invalid argument", icon_url=static_storage.icon_bw)
 					try: await ctx.interaction.edit_original_response(embed=embed)
@@ -168,7 +168,7 @@ class Scheduler(object):
 
 				files, embeds = [], []
 				if responseMessage == "requires pro":
-					embed = Embed(title=f"The requested chart for `{currentTask.get('ticker').get('name')}` is only available on TradingView Premium.", description="All TradingView Premium charts are bundled with the [Advanced Charting add-on](https://www.alphabotsystem.com/pro/advanced-charting).", color=constants.colors["gray"])
+					embed = Embed(title=f"The requested chart for `{currentTask.get('ticker').get('name')}` is only available on TradingView Premium.", description="All TradingView Premium charts are bundled with the [Advanced Charting add-on](https://www.alpha.bot/pro/advanced-charting).", color=constants.colors["gray"])
 					embed.set_author(name="TradingView Premium", icon_url=static_storage.icon_bw)
 					embeds.append(embed)
 				elif payload is None:
@@ -188,7 +188,7 @@ class Scheduler(object):
 				responseMessage, task = await process_heatmap_arguments(data["arguments"], platforms)
 
 				if responseMessage is not None:
-					embed = Embed(title=responseMessage, description="Detailed guide with examples is available on [our website](https://www.alphabotsystem.com/features/heatmaps).", color=constants.colors["gray"])
+					embed = Embed(title=responseMessage, description="Detailed guide with examples is available on [our website](https://www.alpha.bot/features/heatmaps).", color=constants.colors["gray"])
 					embed.set_author(name="Invalid argument", icon_url=static_storage.icon_bw)
 					try: await ctx.interaction.edit_original_response(embed=embed)
 					except NotFound: pass
