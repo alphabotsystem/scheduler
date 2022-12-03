@@ -153,7 +153,7 @@ class Scheduler(object):
 				if responseMessage is not None:
 					description = "[Advanced Charting add-on](https://www.alpha.bot/pro/advanced-charting) unlocks additional assets, indicators, timeframes and more." if responseMessage.endswith("add-on.") else "Detailed guide with examples is available on [our website](https://www.alpha.bot/features/charting)."
 					embed = Embed(title=responseMessage, description=description, color=constants.colors["gray"])
-					embed.set_author(name="Invalid argument", icon_url=static_storage.icon_bw)
+					embed.set_author(name="Invalid argument", icon_url=static_storage.error_icon)
 					return [], [embed]
 
 				currentTask = task.get(task.get("currentPlatform"))
@@ -165,12 +165,12 @@ class Scheduler(object):
 				files, embeds = [], []
 				if responseMessage == "requires pro":
 					embed = Embed(title=f"The requested chart for `{currentTask.get('ticker').get('name')}` is only available on TradingView Premium.", description="All TradingView Premium charts are bundled with the [Advanced Charting add-on](https://www.alpha.bot/pro/advanced-charting).", color=constants.colors["gray"])
-					embed.set_author(name="TradingView Premium", icon_url=static_storage.icon_bw)
+					embed.set_author(name="TradingView Premium", icon_url=static_storage.error_icon)
 					embeds.append(embed)
 				elif payload is None:
 					errorMessage = f"Requested chart for `{currentTask.get('ticker').get('name')}` is not available." if responseMessage is None else responseMessage
 					embed = Embed(title=errorMessage, color=constants.colors["gray"])
-					embed.set_author(name="Chart not available", icon_url=static_storage.icon_bw)
+					embed.set_author(name="Chart not available", icon_url=static_storage.error_icon)
 					embeds.append(embed)
 				else:
 					task["currentPlatform"] = payload.get("platform")
@@ -185,7 +185,7 @@ class Scheduler(object):
 
 				if responseMessage is not None:
 					embed = Embed(title=responseMessage, description="Detailed guide with examples is available on [our website](https://www.alpha.bot/features/heatmaps).", color=constants.colors["gray"])
-					embed.set_author(name="Invalid argument", icon_url=static_storage.icon_bw)
+					embed.set_author(name="Invalid argument", icon_url=static_storage.error_icon)
 					return [], [embed]
 
 				currentTask = task.get(task.get("currentPlatform"))
@@ -198,7 +198,7 @@ class Scheduler(object):
 				if payload is None:
 					errorMessage = "Requested heatmap is not available." if responseMessage is None else responseMessage
 					embed = Embed(title=errorMessage, color=constants.colors["gray"])
-					embed.set_author(name="Heatmap not available", icon_url=static_storage.icon_bw)
+					embed.set_author(name="Heatmap not available", icon_url=static_storage.error_icon)
 					embeds.append(embed)
 				else:
 					files.append(File(payload.get("data"), filename="{:.0f}-{}-{}.png".format(time() * 1000, request.authorId, randint(1000, 9999))))
