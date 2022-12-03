@@ -223,7 +223,7 @@ class Scheduler(object):
 			content=content,
 			files=files,
 			embeds=embeds,
-			username="Alpha",
+			username=data.get("name", "Alpha"),
 			avatar_url="https://cdn.discordapp.com/app-icons/401328409499664394/326e5bef971f8227de79c09d82031dda.png",
 			wait=False
 		)
