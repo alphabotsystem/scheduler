@@ -11,6 +11,7 @@ from pytz import utc
 from traceback import format_exc
 
 from discord import Webhook, Embed, File
+from discord.utils import MISSING
 from google.cloud.firestore import AsyncClient as FirestoreClient
 from google.cloud.error_reporting import Client as ErrorReportingClient
 
@@ -23,6 +24,11 @@ from helpers.utils import seconds_until_cycle, get_accepted_timeframes
 
 
 database = FirestoreClient()
+
+NAMES = {
+	"401328409499664394": "Alpha",
+	"487714342301859854": "Alpha (Beta)"
+}
 
 
 class Scheduler(object):
@@ -223,8 +229,8 @@ class Scheduler(object):
 			content=content,
 			files=files,
 			embeds=embeds,
-			username=data.get("name", "Alpha"),
-			avatar_url="https://cdn.discordapp.com/app-icons/401328409499664394/326e5bef971f8227de79c09d82031dda.png",
+			username=NAMES.get(data.get("botId", "401328409499664394"), MISSING),
+			avatar_url="https://storage.alpha.bot/Icon.png",
 			wait=False
 		)
 
