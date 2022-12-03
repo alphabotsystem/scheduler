@@ -101,9 +101,9 @@ class Scheduler(object):
 							weekday = datetime.now().astimezone(utc).weekday()
 							if weekday == 5 or weekday == 6: continue
 
-						guild = self.guildProperties.get(guildId, {})
+						guild = await self.guildProperties.get(guildId, {})
 						accountId = guild.get("settings", {}).get("setup", {}).get("connection")
-						user = self.accountProperties.get(accountId, {})
+						user = await self.accountProperties.get(accountId, {})
 
 						if not guild: await post.reference.delete()
 						if guild.get("stale", {}).get("count", 0) > 0: continue
