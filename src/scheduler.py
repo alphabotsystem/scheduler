@@ -205,7 +205,7 @@ class Scheduler(object):
 				
 				return files, embeds
 
-			elif data["command"] == "price":
+			# elif data["command"] == "price":
 
 		except (KeyboardInterrupt, SystemExit): pass
 		except Exception:
