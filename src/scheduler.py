@@ -101,11 +101,9 @@ class Scheduler(object):
 							weekday = datetime.now().astimezone(utc).weekday()
 							if weekday == 5 or weekday == 6: continue
 
-						[accountId, user, guild] = await gather(
-							self.accountProperties.match(data["authorId"]),
-							self.accountProperties.get(str(data["authorId"]), {}),
-							self.guildProperties.get(guildId, {})
-						)
+						guild = self.guildProperties.get(guildId, {})
+						accountId = guild.get("settings", {}).get("setup", {}).get("connection")
+						user = self.accountProperties.get(accountId, {})
 
 						if not guild: await post.reference.delete()
 						if guild.get("stale", {}).get("count", 0) > 0: continue
@@ -206,6 +204,8 @@ class Scheduler(object):
 					files.append(File(payload.get("data"), filename="{:.0f}-{}-{}.png".format(time() * 1000, request.authorId, randint(1000, 9999))))
 				
 				return files, embeds
+
+			elif data["command"] == "price":
 
 		except (KeyboardInterrupt, SystemExit): pass
 		except Exception:
