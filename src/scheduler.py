@@ -26,8 +26,9 @@ from helpers.utils import seconds_until_cycle, get_accepted_timeframes
 database = FirestoreClient()
 
 NAMES = {
-	"401328409499664394": "Alpha",
-	"487714342301859854": "Alpha (Beta)"
+	"401328409499664394": ("Alpha", "https://storage.alpha.bot/Icon.png"),
+	"487714342301859854": ("Alpha (Beta)", MISSING),
+	"1048166215689977886": (MISSING, "62fa40ac71dd326490292d8fb1b3bc70.png")
 }
 
 
@@ -225,12 +226,14 @@ class Scheduler(object):
 		if data.get("tag") is not None:
 			content = f"<@&{message.get('tag')}>"
 
+		name, avatar = NAMES.get(data.get("botId", "401328409499664394"), (MISSING, MISSING))
+
 		await Webhook.from_url(data["url"], session=session).send(
 			content=content,
 			files=files,
 			embeds=embeds,
-			username=NAMES.get(data.get("botId", "401328409499664394"), MISSING),
-			avatar_url="https://storage.alpha.bot/Icon.png",
+			username=name,
+			avatar_url=avatar,
 			wait=False
 		)
 
