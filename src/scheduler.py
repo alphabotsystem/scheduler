@@ -28,7 +28,7 @@ database = FirestoreClient()
 NAMES = {
 	"401328409499664394": ("Alpha", "https://storage.alpha.bot/Icon.png"),
 	"487714342301859854": ("Alpha (Beta)", MISSING),
-	"1048166215689977886": (MISSING, "62fa40ac71dd326490292d8fb1b3bc70.png")
+	"1048166215689977886": (MISSING, "https://storage.alpha.bot/62fa40ac71dd326490292d8fb1b3bc70.png")
 }
 
 
