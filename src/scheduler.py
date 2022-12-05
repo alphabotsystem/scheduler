@@ -233,8 +233,7 @@ class Scheduler(object):
 			files=files,
 			embeds=embeds,
 			username=name,
-			avatar_url=avatar,
-			wait=False
+			avatar_url=avatar
 		)
 
 if __name__ == "__main__":
