@@ -153,6 +153,9 @@ class Scheduler(object):
 
 	async def process_request(self, request, data):
 		try:
+			botId = data.get("botId", "401328409499664394")
+			origin = "default" if botId == "401328409499664394" else botId
+
 			if data["command"] == "chart":
 				platforms = request.get_platform_order_for("c")
 				responseMessage, task = await process_chart_arguments(data["arguments"][1:], platforms, tickerId=data["arguments"][0].upper(), defaults=request.guildProperties["charting"])
@@ -167,7 +170,7 @@ class Scheduler(object):
 				timeframes = task.pop("timeframes")
 				for p, t in timeframes.items(): task[p]["currentTimeframe"] = t[0]
 
-				payload, responseMessage = await process_task(task, "chart")
+				payload, responseMessage = await process_task(task, "chart", origin=origin)
 
 				files, embeds = [], []
 				if responseMessage == "requires pro":
@@ -199,7 +202,7 @@ class Scheduler(object):
 				timeframes = task.pop("timeframes")
 				for p, t in timeframes.items(): task[p]["currentTimeframe"] = t[0]
 
-				payload, responseMessage = await process_task(task, "heatmap")
+				payload, responseMessage = await process_task(task, "heatmap", origin=origin)
 
 				files, embeds = [], []
 				if payload is None:
