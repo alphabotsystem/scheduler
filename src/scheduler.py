@@ -11,6 +11,7 @@ from pytz import utc
 from traceback import format_exc
 
 from discord import Webhook, Embed, File
+from discord.embeds import EmptyEmbed
 from discord.utils import MISSING
 from google.cloud.firestore import AsyncClient as FirestoreClient
 from google.cloud.error_reporting import Client as ErrorReportingClient
