@@ -251,24 +251,29 @@ class Scheduler(object):
 		return [], []
 
 	async def push_post(self, session, files, embeds, data):
-		if len(files) == 0 and len(embeds) == 0:
-			return
+		try:
+			if len(files) == 0 and len(embeds) == 0:
+				return
 
-		content = None
-		if data.get("message") is not None:
-			embeds.append(Embed(description=data.get("message"), color=constants.colors["purple"]))
-		if data.get("tag") is not None:
-			content = f"<@&{message.get('tag')}>"
+			content = None
+			if data.get("message") is not None:
+				embeds.append(Embed(description=data.get("message"), color=constants.colors["purple"]))
+			if data.get("tag") is not None:
+				content = f"<@&{message.get('tag')}>"
 
-		name, avatar = NAMES.get(data.get("botId", "401328409499664394"), (MISSING, MISSING))
+			name, avatar = NAMES.get(data.get("botId", "401328409499664394"), (MISSING, MISSING))
 
-		await Webhook.from_url(data["url"], session=session).send(
-			content=content,
-			files=files,
-			embeds=embeds,
-			username=name,
-			avatar_url=avatar
-		)
+			await Webhook.from_url(data["url"], session=session).send(
+				content=content,
+				files=files,
+				embeds=embeds,
+				username=name,
+				avatar_url=avatar
+			)
+		except (KeyboardInterrupt, SystemExit): pass
+		except Exception:
+			print(format_exc())
+			if environ["PRODUCTION"]: self.logging.report_exception()
 
 if __name__ == "__main__":
 	scheduler = Scheduler()
