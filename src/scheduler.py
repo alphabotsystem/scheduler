@@ -17,7 +17,7 @@ from google.cloud.error_reporting import Client as ErrorReportingClient
 
 from helpers import constants
 from assets import static_storage
-from Processor import process_chart_arguments, process_heatmap_arguments, process_task
+from Processor import process_chart_arguments, process_heatmap_arguments, process_quote_arguments, process_task
 from DatabaseConnector import DatabaseConnector
 from CommandRequest import CommandRequest
 from helpers.utils import seconds_until_cycle, get_accepted_timeframes
