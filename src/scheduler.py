@@ -248,9 +248,12 @@ class Scheduler(object):
 		except Exception:
 			print(format_exc())
 			if environ["PRODUCTION"]: self.logging.report_exception()
-		return None, None
+		return [], []
 
 	async def push_post(self, session, files, embeds, data):
+		if len(files) == 0 and len(embeds) == 0:
+			return
+
 		content = None
 		if data.get("message") is not None:
 			embeds.append(Embed(description=data.get("message"), color=constants.colors["purple"]))
