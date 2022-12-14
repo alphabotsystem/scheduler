@@ -215,7 +215,34 @@ class Scheduler(object):
 				
 				return files, embeds
 
-			# elif data["command"] == "price":
+			elif data["command"] == "price":
+				platforms = request.get_platform_order_for("p")
+				responseMessage, task = await process_quote_arguments(data["arguments"][1:], platforms, tickerId=data["arguments"][0].upper())
+
+				if responseMessage is not None:
+					embed = Embed(title=responseMessage, description="Detailed guide with examples is available on [our website](https://www.alpha.bot/features/prices).", color=constants.colors["gray"])
+					embed.set_author(name="Invalid argument", icon_url=static_storage.error_icon)
+					return [], [embed]
+
+				currentTask = task.get(task.get("currentPlatform"))
+				payload, responseMessage = await process_task(task, "quote")
+
+				if payload is None or "quotePrice" not in payload:
+					errorMessage = f"Requested quote for `{currentTask.get('ticker').get('name')}` is not available." if responseMessage is None else responseMessage
+					embed = Embed(title=errorMessage, color=constants.colors["gray"])
+					embed.set_author(name="Data not available", icon_url=static_storage.error_icon)
+				else:
+					currentTask = task.get(payload.get("platform"))
+					if payload.get("platform") in ["Alternative.me", "CNN Business"]:
+						embed = Embed(title=f"{payload['quotePrice']} *({payload['change']})*", description=payload.get("quoteConvertedPrice", EmptyEmbed), color=constants.colors[payload["messageColor"]])
+						embed.set_author(name=payload["title"], icon_url=payload.get("thumbnailUrl"))
+						embed.set_footer(text=payload["sourceText"])
+					else:
+						embed = Embed(title="{}{}".format(payload["quotePrice"], f" *({payload['change']})*" if "change" in payload else ""), description=payload.get("quoteConvertedPrice", EmptyEmbed), color=constants.colors[payload["messageColor"]])
+						embed.set_author(name=payload["title"], icon_url=payload.get("thumbnailUrl"))
+						embed.set_footer(text=payload["sourceText"])
+
+				return [], [embed]
 
 		except (KeyboardInterrupt, SystemExit): pass
 		except Exception:
