@@ -11,7 +11,6 @@ from pytz import utc
 from traceback import format_exc
 
 from discord import Webhook, Embed, File
-from discord.embeds import EmptyEmbed
 from discord.utils import MISSING
 from google.cloud.firestore import AsyncClient as FirestoreClient
 from google.cloud.error_reporting import Client as ErrorReportingClient
@@ -235,11 +234,11 @@ class Scheduler(object):
 				else:
 					currentTask = task.get(payload.get("platform"))
 					if payload.get("platform") in ["Alternative.me", "CNN Business"]:
-						embed = Embed(title=f"{payload['quotePrice']} *({payload['change']})*", description=payload.get("quoteConvertedPrice", EmptyEmbed), color=constants.colors[payload["messageColor"]])
+						embed = Embed(title=f"{payload['quotePrice']} *({payload['change']})*", description=payload.get("quoteConvertedPrice"), color=constants.colors[payload["messageColor"]])
 						embed.set_author(name=payload["title"], icon_url=payload.get("thumbnailUrl"))
 						embed.set_footer(text=payload["sourceText"])
 					else:
-						embed = Embed(title="{}{}".format(payload["quotePrice"], f" *({payload['change']})*" if "change" in payload else ""), description=payload.get("quoteConvertedPrice", EmptyEmbed), color=constants.colors[payload["messageColor"]])
+						embed = Embed(title="{}{}".format(payload["quotePrice"], f" *({payload['change']})*" if "change" in payload else ""), description=payload.get("quoteConvertedPrice"), color=constants.colors[payload["messageColor"]])
 						embed.set_author(name=payload["title"], icon_url=payload.get("thumbnailUrl"))
 						embed.set_footer(text=payload["sourceText"])
 
