@@ -221,6 +221,7 @@ class Scheduler(object):
 		except Exception:
 			print(format_exc())
 			if environ["PRODUCTION"]: self.logging.report_exception()
+		return None, None
 
 	async def push_post(self, session, files, embeds, data):
 		content = None
