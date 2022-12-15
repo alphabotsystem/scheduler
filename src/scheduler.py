@@ -246,6 +246,7 @@ class Scheduler(object):
 
 		except (KeyboardInterrupt, SystemExit): pass
 		except Exception:
+			print(data["authorId"], data["channelId"])
 			print(format_exc())
 			if environ["PRODUCTION"]: self.logging.report_exception()
 		return [], []
@@ -272,6 +273,7 @@ class Scheduler(object):
 			)
 		except (KeyboardInterrupt, SystemExit): pass
 		except Exception:
+			print(data["authorId"], data["channelId"])
 			print(format_exc())
 			if environ["PRODUCTION"]: self.logging.report_exception()
 
