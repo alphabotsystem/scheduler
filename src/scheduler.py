@@ -260,7 +260,7 @@ class Scheduler(object):
 					embed.set_author(name="Data not available", icon_url=static_storage.error_icon)
 				else:
 					currentTask = task.get(payload.get("platform"))
-					embed = Embed(title=payload["quoteVolume"], description=payload.get("quoteConvertedVolume", EmptyEmbed), color=constants.colors["orange"])
+					embed = Embed(title=payload["quoteVolume"], description=payload.get("quoteConvertedVolume"), color=constants.colors["orange"])
 					embed.set_author(name=payload["title"], icon_url=payload.get("thumbnailUrl"))
 					embed.set_footer(text=payload["sourceText"])
 
