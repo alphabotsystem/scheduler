@@ -107,7 +107,7 @@ class Scheduler(object):
 							yesterday = today.replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=1)
 							startTime = yesterday.strftime("%Y%m%d")
 							url = f"https://cloud.iexapis.com/stable/ref-data/us/dates/trade/next/1/{startTime}?token={environ['IEXC_KEY']}"
-							async with session.get() as resp:
+							async with session.get(url) as resp:
 								if resp.status != 200: continue
 								data = await resp.json()
 								if data[0]["date"] != today.strftime("%Y-%m-%d"): continue
