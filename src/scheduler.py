@@ -313,7 +313,7 @@ class Scheduler(object):
 					"channel": data['channelId'],
 					"backupUser": data['authorId'],
 					"backupChannel": data['channelId'],
-					"botId": alert.get("botId", "401328409499664394")
+					"botId": data.get("botId", "401328409499664394")
 				})
 				await reference.set({"status": "failed", "timestamp": time()}, merge=True)
 		except Exception:
