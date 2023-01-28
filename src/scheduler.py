@@ -11,6 +11,7 @@ from pytz import utc
 from traceback import format_exc
 
 from discord import Webhook, Embed, File
+from discord.errors import NotFound
 from discord.utils import MISSING
 from google.cloud.firestore import AsyncClient as FirestoreClient
 from google.cloud.error_reporting import Client as ErrorReportingClient
@@ -40,7 +41,7 @@ class Scheduler(object):
 	# -------------------------
 	# Startup
 	# -------------------------
-	
+
 	def __init__(self):
 		self.isServiceAvailable = True
 		signal(SIGINT, self.exit_gracefully)
@@ -135,14 +136,14 @@ class Scheduler(object):
 								create_task(self.process_request(request, data)),
 								[len(requests)]
 							]
-						requests.append(data)
+						requests.append((data, request))
 
 				tasks = []
-				for key, [request, indices] in requestMap.items():
-					files, embeds = await request
+				for key, [response, indices] in requestMap.items():
+					files, embeds = await response
 					for i in indices:
-						data = requests[i]
-						tasks.append(create_task(self.push_post(session, files, embeds, data)))
+						data, request = requests[i]
+						tasks.append(create_task(self.push_post(session, files, embeds, data, request)))
 				if len(tasks) > 0: await wait(tasks)
 
 				print("Task finished in", time() - startTimestamp, "seconds")
@@ -212,7 +213,7 @@ class Scheduler(object):
 					embeds.append(embed)
 				else:
 					files.append(File(payload.get("data"), filename="{:.0f}-{}-{}.png".format(time() * 1000, request.authorId, randint(1000, 9999))))
-				
+
 				return files, embeds
 
 			elif data["command"] == "price":
@@ -273,7 +274,7 @@ class Scheduler(object):
 			if environ["PRODUCTION"]: self.logging.report_exception()
 		return [], []
 
-	async def push_post(self, session, files, embeds, data):
+	async def push_post(self, session, files, embeds, data, request):
 		try:
 			if len(files) == 0 and len(embeds) == 0:
 				return
@@ -294,6 +295,8 @@ class Scheduler(object):
 				avatar_url=avatar
 			)
 		except (KeyboardInterrupt, SystemExit): pass
+		except NotFound:
+			print(f"Webhook not found in {request.guildId}")
 		except Exception:
 			print(data["authorId"], data["channelId"])
 			print(format_exc())
