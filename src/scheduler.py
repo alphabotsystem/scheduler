@@ -7,6 +7,7 @@ from random import randint
 from datetime import datetime
 from aiohttp import TCPConnector, ClientSession
 from asyncio import sleep, wait, run, gather, create_task
+from uuid import uuid4
 from pytz import utc
 from traceback import format_exc
 
@@ -93,6 +94,11 @@ class Scheduler(object):
 
 					async for post in guild.stream():
 						data = post.to_dict()
+
+						if data.get("timestamp", time()) < time() - 86400:
+							await post.reference.delete()
+							continue
+
 						if data["start"] > time() or int(data["start"] / 60) % data["period"] != int(time() / 60) % data["period"]: continue
 
 						if data.get("exclude") == "outside market hours":
@@ -136,14 +142,14 @@ class Scheduler(object):
 								create_task(self.process_request(request, data)),
 								[len(requests)]
 							]
-						requests.append((data, request))
+						requests.append((data, request, post))
 
 				tasks = []
 				for key, [response, indices] in requestMap.items():
 					files, embeds = await response
 					for i in indices:
-						data, request = requests[i]
-						tasks.append(create_task(self.push_post(session, files, embeds, data, request)))
+						data, request, post = requests[i]
+						tasks.append(create_task(self.push_post(session, files, embeds, data, post.reference, request)))
 				if len(tasks) > 0: await wait(tasks)
 
 				print("Task finished in", time() - startTimestamp, "seconds")
@@ -274,7 +280,7 @@ class Scheduler(object):
 			if environ["PRODUCTION"]: self.logging.report_exception()
 		return [], []
 
-	async def push_post(self, session, files, embeds, data, request):
+	async def push_post(self, session, files, embeds, data, reference, request):
 		try:
 			if len(files) == 0 and len(embeds) == 0:
 				return
@@ -297,8 +303,21 @@ class Scheduler(object):
 		except (KeyboardInterrupt, SystemExit): pass
 		except NotFound:
 			print(f"Webhook not found in {request.guildId}")
+			if data.get("status") != "failed":
+				await database.document(f"discord/properties/messages/{str(uuid4())}").set({
+					"title": "Scheduled post is failing!",
+					"description": f"You have scheduled a post (`/{data['command']} {data['arguments']}`) to be sent to a channel that no longer exists or no longer has Alpha's webhook. Use `/schedule list` to review, delete and reschedule the post if you want to keep it. The post will be automatically deleted in 24 hours.",
+					"subtitle": "Scheduled posts",
+					"color": 6765239,
+					"user": data['authorId'],
+					"channel": data['channelId'],
+					"backupUser": data['authorId'],
+					"backupChannel": data['channelId'],
+					"botId": alert.get("botId", "401328409499664394")
+				})
+				await reference.set({"status": "failed", "timestamp": time()}, merge=True)
 		except Exception:
-			print(data["authorId"], data["channelId"])
+			print(f"{request.guildId}/{data['channelId']} set by {data['authorId']}")
 			print(format_exc())
 			if environ["PRODUCTION"]: self.logging.report_exception()
 
