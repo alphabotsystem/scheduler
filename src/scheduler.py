@@ -101,16 +101,19 @@ class Scheduler(object):
 
 						if data["start"] > time() or int(data["start"] / 60) % data["period"] != int(time() / 60) % data["period"]: continue
 
+						print(data.get("exclude") == "outside us market hours")
 						if data.get("exclude") == "outside us market hours":
 							today = datetime.now().astimezone(utc)
+							print(today.hour < 14 or (today.hour == 14 and today.minute < 30) or today.hour > 21)
 							if today.hour < 14 or (today.hour == 14 and today.minute < 30) or today.hour > 21: continue
 							yesterday = today.replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=1)
 							startTime = yesterday.strftime("%Y%m%d")
 							url = f"https://cloud.iexapis.com/stable/ref-data/us/dates/trade/next/1/{startTime}?token={environ['IEXC_KEY']}"
 							async with session.get(url) as resp:
 								if resp.status != 200: continue
-								data = await resp.json()
-								if data[0]["date"] != today.strftime("%Y-%m-%d"): continue
+								resp = await resp.json()
+								print(resp)
+								if resp[0]["date"] != today.strftime("%Y-%m-%d"): continue
 						elif data.get("exclude") == "weekends":
 							weekday = datetime.now().astimezone(utc).weekday()
 							if weekday == 5 or weekday == 6: continue
