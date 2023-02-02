@@ -257,7 +257,7 @@ class Scheduler(object):
 				responseMessage, task = await process_quote_arguments(data["arguments"][1:], platforms, tickerId=data["arguments"][0].upper())
 
 				if responseMessage is not None:
-					embed = Embed(title=responseMessage, description="Detailed guide with examples is available on [our website](https://www.alpha.bot/features/prices).", color=constants.colors["gray"])
+					embed = Embed(title=responseMessage, description="Detailed guide with examples is available on [our website](https://www.alpha.bot/features/volume).", color=constants.colors["gray"])
 					embed.set_author(name="Invalid argument", icon_url=static_storage.error_icon)
 					return [], [embed]
 
