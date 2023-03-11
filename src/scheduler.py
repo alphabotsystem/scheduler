@@ -16,6 +16,7 @@ from discord.errors import NotFound
 from discord.utils import MISSING
 from google.cloud.firestore import AsyncClient as FirestoreClient
 from google.cloud.error_reporting import Client as ErrorReportingClient
+from pycoingecko import CoinGeckoAPI
 
 from helpers import constants
 from assets import static_storage
@@ -272,6 +273,54 @@ class Scheduler(object):
 					embed = Embed(title=payload["quoteVolume"], description=payload.get("quoteConvertedVolume"), color=constants.colors["orange"])
 					embed.set_author(name=payload["title"], icon_url=payload.get("thumbnailUrl"))
 					embed.set_footer(text=payload["sourceText"])
+
+				return [], [embed]
+
+			elif data["command"] == "lookup top-performers":
+				[category, limit] = data["arguments"]
+				if category == "crypto gainers":
+					rawData = []
+					cg = CoinGeckoAPI()
+					page = 1
+					while True:
+						try:
+							rawData += cg.get_coins_markets(vs_currency="usd", order="market_cap_desc", per_page=250, page=page, price_change_percentage="24h")
+							page += 1
+							if page > 4: break
+							await sleep(0.6)
+						except: await sleep(5)
+
+					response = []
+					for e in rawData[:max(10, int(limit))]:
+						if e.get("price_change_percentage_24h_in_currency", None) is not None:
+							response.append({"symbol": e["symbol"].upper(), "change": e["price_change_percentage_24h_in_currency"]})
+					response = sorted(response, key=lambda k: k["change"], reverse=True)[:10]
+
+					embed = Embed(title="Top gainers", color=constants.colors["deep purple"])
+					for token in response:
+						embed.add_field(name=token["symbol"], value="Gained {:,.2f} %".format(token["change"]), inline=True)
+
+				elif category == "crypto losers":
+					rawData = []
+					cg = CoinGeckoAPI()
+					page = 1
+					while True:
+						try:
+							rawData += cg.get_coins_markets(vs_currency="usd", order="market_cap_desc", per_page=250, page=page, price_change_percentage="24h")
+							page += 1
+							if page > 4: break
+							await sleep(0.6)
+						except: await sleep(5)
+
+					response = []
+					for e in rawData[:max(10, int(limit))]:
+						if e.get("price_change_percentage_24h_in_currency", None) is not None:
+							response.append({"symbol": e["symbol"].upper(), "change": e["price_change_percentage_24h_in_currency"]})
+					response = sorted(response, key=lambda k: k["change"])[:10]
+
+					embed = Embed(title="Top losers", color=constants.colors["deep purple"])
+					for token in response:
+						embed.add_field(name=token["symbol"], value="Lost {:,.2f} %".format(token["change"]), inline=True)
 
 				return [], [embed]
 
