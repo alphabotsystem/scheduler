@@ -101,10 +101,8 @@ class Scheduler(object):
 
 						if data["start"] > time() or int(data["start"] / 60) % data["period"] != int(time() / 60) % data["period"]: continue
 
-						print(data.get("exclude") == "outside us market hours")
 						if data.get("exclude") == "outside us market hours":
 							today = datetime.now().astimezone(utc)
-							print(today.hour < 14 or (today.hour == 14 and today.minute < 30) or today.hour > 21)
 							if today.hour < 14 or (today.hour == 14 and today.minute < 30) or today.hour > 21: continue
 							yesterday = today.replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=1)
 							startTime = yesterday.strftime("%Y%m%d")
@@ -112,7 +110,6 @@ class Scheduler(object):
 							async with session.get(url) as resp:
 								if resp.status != 200: continue
 								resp = await resp.json()
-								print(resp)
 								if resp[0]["date"] != today.strftime("%Y-%m-%d"): continue
 						elif data.get("exclude") == "weekends":
 							weekday = datetime.now().astimezone(utc).weekday()
@@ -280,7 +277,7 @@ class Scheduler(object):
 				[category, limit] = data["arguments"]
 				if category == "crypto gainers":
 					rawData = []
-					cg = CoinGeckoAPI()
+					cg = CoinGeckoAPI(api_key=environ["COINGECKO_API_KEY"])
 					page = 1
 					while True:
 						try:
@@ -302,7 +299,7 @@ class Scheduler(object):
 
 				elif category == "crypto losers":
 					rawData = []
-					cg = CoinGeckoAPI()
+					cg = CoinGeckoAPI(api_key=environ["COINGECKO_API_KEY"])
 					page = 1
 					while True:
 						try:
