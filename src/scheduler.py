@@ -70,7 +70,7 @@ class Scheduler(object):
 					await self.process_posts()
 
 			except (KeyboardInterrupt, SystemExit): return
-			except Exception:
+			except:
 				print(format_exc())
 				if environ["PRODUCTION"]: self.logging.report_exception()
 
@@ -171,7 +171,7 @@ class Scheduler(object):
 
 				print("Task finished in", time() - startTimestamp, "seconds")
 			except (KeyboardInterrupt, SystemExit): pass
-			except Exception:
+			except:
 				print(format_exc())
 				if environ["PRODUCTION"]: self.logging.report_exception()
 
@@ -338,7 +338,7 @@ class Scheduler(object):
 				raise Exception(f"invalid command: {data['command']}")
 
 		except (KeyboardInterrupt, SystemExit): pass
-		except Exception:
+		except:
 			print(data["authorId"], data["channelId"])
 			print(format_exc())
 			if environ["PRODUCTION"]: self.logging.report_exception()
