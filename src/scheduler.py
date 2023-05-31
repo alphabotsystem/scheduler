@@ -153,7 +153,7 @@ class Scheduler(object):
 							print(f"Using cached response for post {guildId}/{post.id}")
 							requestMap[key][1].append(len(requests))
 						else:
-							print(f"Creating new response for post {guildId}/{post.id}")
+							print(f"Creating new request for post {guildId}/{post.id}")
 							requestMap[key] = [
 								create_task(self.process_request(request, data)),
 								[len(requests)]
@@ -382,7 +382,7 @@ class Scheduler(object):
 					"botId": data.get("botId", "401328409499664394")
 				})
 				await reference.set({"status": "failed", "timestamp": time()}, merge=True)
-		except Exception:
+		except:
 			print(f"{request.guildId}/{data['channelId']} set by {data['authorId']}")
 			print(format_exc())
 			if environ["PRODUCTION"]: self.logging.report_exception()
