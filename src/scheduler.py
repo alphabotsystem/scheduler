@@ -92,13 +92,12 @@ class Scheduler(object):
 				async for guild in guilds:
 					guildId = guild.id
 					if not environ["PRODUCTION"] and guildId != "926518026457739304": continue
-					print(f"Processing guild {guildId}")
 
 					async for post in guild.stream():
 						data = post.to_dict()
 
 						if data.get("timestamp", time()) < time() - 86400 * 5:
-							print(f"Deleting stale post {post.id}")
+							print(f"Deleting stale post {guildId}/{post.id}")
 							await post.reference.delete()
 							continue
 
@@ -114,25 +113,25 @@ class Scheduler(object):
 								if resp.status != 200: continue
 								resp = await resp.json()
 								if resp[0]["date"] != today.strftime("%Y-%m-%d"):
-									print(f"Skipping post {post.id}")
+									print(f"Skipping post {guildId}/{post.id}")
 									continue
 						elif data.get("exclude") == "weekends":
 							weekday = datetime.now().astimezone(utc).weekday()
 							if weekday == 5 or weekday == 6:
-								print(f"Skipping post {post.id}")
+								print(f"Skipping post {guildId}/{post.id}")
 								continue
 
-						print(f"Processing post {post.id}")
+						print(f"Processing post {guildId}/{post.id}")
 
 						guild = await self.guildProperties.get(guildId, {})
 						accountId = guild.get("settings", {}).get("setup", {}).get("connection")
 						user = await self.accountProperties.get(accountId, {})
 
 						if not guild:
-							print(f"Deleting post {post.id} due to missing guild")
+							print(f"Deleting post {guildId}/{post.id} due to missing guild")
 							await post.reference.delete()
 						if guild.get("stale", {}).get("count", 0) > 0:
-							print(f"Skipping post {post.id} due to stale guild")
+							print(f"Skipping post {guildId}/{post.id} due to stale guild")
 							continue
 
 						request = CommandRequest(
@@ -145,16 +144,16 @@ class Scheduler(object):
 						)
 
 						if not request.scheduled_posting_available():
-							print(f"Skipping post {post.id} due to missing subscription")
+							print(f"Skipping post {guildId}/{post.id} due to missing subscription")
 							continue
 
 						subscriptions = sorted(user["customer"]["subscriptions"].keys())
 						key = f"{data['authorId']} {subscriptions} {' '.join(data['arguments'])}"
 						if key in requestMap:
-							print(f"Using cached response for post {post.id}")
+							print(f"Using cached response for post {guildId}/{post.id}")
 							requestMap[key][1].append(len(requests))
 						else:
-							print(f"Creating new response for post {post.id}")
+							print(f"Creating new response for post {guildId}/{post.id}")
 							requestMap[key] = [
 								create_task(self.process_request(request, data)),
 								[len(requests)]
@@ -166,7 +165,7 @@ class Scheduler(object):
 					files, embeds = await response
 					for i in indices:
 						data, request, post = requests[i]
-						print(f"Pushing post {post.id}")
+						print(f"Pushing post {request.guildId}/{post.id}")
 						tasks.append(create_task(self.push_post(session, files, embeds, data, post.reference, request)))
 				if len(tasks) > 0: await wait(tasks)
 
