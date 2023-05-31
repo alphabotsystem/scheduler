@@ -80,6 +80,7 @@ class Scheduler(object):
 	# -------------------------
 
 	async def process_posts(self):
+		print("Started processing posts")
 		startTimestamp = time()
 		conn = TCPConnector(limit=5)
 		async with ClientSession(connector=conn) as session:
@@ -385,4 +386,5 @@ class Scheduler(object):
 
 if __name__ == "__main__":
 	scheduler = Scheduler()
+	print("[Startup]: Scheduler is online")
 	run(scheduler.run())
