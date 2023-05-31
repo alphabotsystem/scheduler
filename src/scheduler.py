@@ -352,8 +352,8 @@ class Scheduler(object):
 
 			name, avatar = NAMES.get(data.get("botId", "401328409499664394"), (MISSING, MISSING))
 
-			webhook = await Webhook.from_url(data["url"], session=session)
-			response = webhook.send(
+			webhook = Webhook.from_url(data["url"], session=session)
+			response = await webhook.send(
 				content=content,
 				files=files,
 				embeds=embeds,
