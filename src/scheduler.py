@@ -14,7 +14,7 @@ from traceback import format_exc
 from discord import Webhook, Embed, File
 from discord.errors import NotFound
 from discord.utils import MISSING
-from google.cloud.firestore import AsyncClient as FirestoreClient
+from google.cloud.firestore import AsyncClient as FirestoreClient, DELETE_FIELD
 from google.cloud.error_reporting import Client as ErrorReportingClient
 from pycoingecko import CoinGeckoAPI
 
@@ -91,11 +91,13 @@ class Scheduler(object):
 				async for guild in guilds:
 					guildId = guild.id
 					if not environ["PRODUCTION"] and guildId != "926518026457739304": continue
+					print(f"Processing guild {guildId}")
 
 					async for post in guild.stream():
 						data = post.to_dict()
 
-						if data.get("timestamp", time()) < time() - 86400:
+						if data.get("timestamp", time()) < time() - 86400 * 5:
+							print(f"Deleting stale post {post.id}")
 							await post.reference.delete()
 							continue
 
@@ -110,17 +112,27 @@ class Scheduler(object):
 							async with session.get(url) as resp:
 								if resp.status != 200: continue
 								resp = await resp.json()
-								if resp[0]["date"] != today.strftime("%Y-%m-%d"): continue
+								if resp[0]["date"] != today.strftime("%Y-%m-%d"):
+									print(f"Skipping post {post.id}")
+									continue
 						elif data.get("exclude") == "weekends":
 							weekday = datetime.now().astimezone(utc).weekday()
-							if weekday == 5 or weekday == 6: continue
+							if weekday == 5 or weekday == 6:
+								print(f"Skipping post {post.id}")
+								continue
+
+						print(f"Processing post {post.id}")
 
 						guild = await self.guildProperties.get(guildId, {})
 						accountId = guild.get("settings", {}).get("setup", {}).get("connection")
 						user = await self.accountProperties.get(accountId, {})
 
-						if not guild: await post.reference.delete()
-						if guild.get("stale", {}).get("count", 0) > 0: continue
+						if not guild:
+							print(f"Deleting post {post.id} due to missing guild")
+							await post.reference.delete()
+						if guild.get("stale", {}).get("count", 0) > 0:
+							print(f"Skipping post {post.id} due to stale guild")
+							continue
 
 						request = CommandRequest(
 							accountId=accountId,
@@ -131,13 +143,17 @@ class Scheduler(object):
 							guildProperties=guild
 						)
 
-						if not request.scheduled_posting_available(): continue
+						if not request.scheduled_posting_available():
+							print(f"Skipping post {post.id} due to missing subscription")
+							continue
 
 						subscriptions = sorted(user["customer"]["subscriptions"].keys())
 						key = f"{data['authorId']} {subscriptions} {' '.join(data['arguments'])}"
 						if key in requestMap:
+							print(f"Using cached response for post {post.id}")
 							requestMap[key][1].append(len(requests))
 						else:
+							print(f"Creating new response for post {post.id}")
 							requestMap[key] = [
 								create_task(self.process_request(request, data)),
 								[len(requests)]
@@ -149,6 +165,7 @@ class Scheduler(object):
 					files, embeds = await response
 					for i in indices:
 						data, request, post = requests[i]
+						print(f"Pushing post {post.id}")
 						tasks.append(create_task(self.push_post(session, files, embeds, data, post.reference, request)))
 				if len(tasks) > 0: await wait(tasks)
 
@@ -342,13 +359,16 @@ class Scheduler(object):
 				username=name,
 				avatar_url=avatar
 			)
+
+			if data.get("status") == "failed":
+				await reference.set({"status": DELETE_FIELD, "timestamp": DELETE_FIELD}, merge=True)
 		except (KeyboardInterrupt, SystemExit): pass
 		except NotFound:
 			print(f"Webhook not found in {request.guildId}")
 			if data.get("status") != "failed":
 				await database.document(f"discord/properties/messages/{str(uuid4())}").set({
 					"title": "Scheduled post is failing!",
-					"description": f"You have scheduled a post (`/{data['command']} {' '.join(data['arguments'])}`) to be sent to a channel that no longer exists or no longer has Alpha.bot's webhook. Use `/schedule list` to review, delete and reschedule the post if you want to keep it. The post will be automatically deleted in 24 hours.",
+					"description": f"You have scheduled a post (`/{data['command']} {' '.join(data['arguments'])}`) to be sent to a channel that no longer exists or no longer has Alpha.bot's webhook. Use `/schedule list` to review, delete and reschedule the post if you want to keep it. If the post keeps failing, it will be automatically deleted in 5 days.",
 					"subtitle": "Scheduled posts",
 					"color": 6765239,
 					"user": data['authorId'],
