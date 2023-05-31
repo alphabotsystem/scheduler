@@ -266,6 +266,8 @@ class Scheduler(object):
 						embed.set_author(name=payload["title"], icon_url=payload.get("thumbnailUrl"))
 						embed.set_footer(text=payload["sourceText"])
 
+				return [], [embed]
+
 			elif data["command"] == "volume":
 				platforms = request.get_platform_order_for("v")
 				responseMessage, task = await process_quote_arguments(data["arguments"][1:], platforms, tickerId=data["arguments"][0].upper())
@@ -332,12 +334,14 @@ class Scheduler(object):
 
 				return [], [embed]
 
+			else:
+				raise Exception(f"invalid command: {data['command']}")
+
 		except (KeyboardInterrupt, SystemExit): pass
 		except Exception:
 			print(data["authorId"], data["channelId"])
 			print(format_exc())
 			if environ["PRODUCTION"]: self.logging.report_exception()
-		print("Request fell through")
 		return [], []
 
 	async def push_post(self, session, files, embeds, data, reference, request):
