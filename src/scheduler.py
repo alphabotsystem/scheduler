@@ -358,13 +358,15 @@ class Scheduler(object):
 			name, avatar = NAMES.get(data.get("botId", "401328409499664394"), (MISSING, MISSING))
 
 			webhook = Webhook.from_url(data["url"], session=session)
-			await webhook.send(
+			message = await webhook.send(
 				content=content,
 				files=files,
 				embeds=embeds,
 				username=name,
-				avatar_url=avatar
+				avatar_url=avatar,
+				wait=True
 			)
+			print(f"Posted message {message.id} to {request.guildId}")
 
 			if data.get("status") == "failed":
 				await reference.set({"status": DELETE_FIELD, "timestamp": DELETE_FIELD}, merge=True)
