@@ -337,11 +337,13 @@ class Scheduler(object):
 			print(data["authorId"], data["channelId"])
 			print(format_exc())
 			if environ["PRODUCTION"]: self.logging.report_exception()
+		print("Request fell through")
 		return [], []
 
 	async def push_post(self, session, files, embeds, data, reference, request):
 		try:
 			if len(files) == 0 and len(embeds) == 0:
+				print("No files or embeds to send.")
 				return
 
 			content = None
