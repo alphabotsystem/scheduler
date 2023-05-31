@@ -347,8 +347,7 @@ class Scheduler(object):
 	async def push_post(self, session, files, embeds, data, reference, request):
 		try:
 			if len(files) == 0 and len(embeds) == 0:
-				print("No files or embeds to send.")
-				return
+				raise Exception("no files or embeds to send")
 
 			content = None
 			if data.get("message") is not None:
