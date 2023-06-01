@@ -91,7 +91,17 @@ class Scheduler(object):
 
 				async for guild in guilds:
 					guildId = guild.id
-					if not environ["PRODUCTION"] and guildId != "926518026457739304": continue
+					if not environ["PRODUCTION"] and guildId != "926518026457739304":
+						continue
+
+					guild = await self.guildProperties.get(guildId, {})
+					if not guild:
+						guild = (await database.document(f"discord/properties/guilds/{guildId}").get()).to_dict()
+					if guild.get("stale", {}).get("count", 0) > 0:
+						print(f"Skipping post {guildId}/{post.id} due to stale guild")
+						continue
+					accountId = guild.get("settings", {}).get("setup", {}).get("connection")
+					user = await self.accountProperties.get(accountId, {})
 
 					async for post in guild.stream():
 						data = post.to_dict()
@@ -121,18 +131,9 @@ class Scheduler(object):
 								print(f"Skipping post {guildId}/{post.id}")
 								continue
 
-						print(f"Processing post {guildId}/{post.id}")
-
-						guild = await self.guildProperties.get(guildId, {})
-						accountId = guild.get("settings", {}).get("setup", {}).get("connection")
-						user = await self.accountProperties.get(accountId, {})
-
 						if not guild:
 							print(f"Deleting post {guildId}/{post.id} due to missing guild")
 							await post.reference.delete()
-						if guild.get("stale", {}).get("count", 0) > 0:
-							print(f"Skipping post {guildId}/{post.id} due to stale guild")
-							continue
 
 						request = CommandRequest(
 							accountId=accountId,
