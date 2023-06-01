@@ -4,11 +4,10 @@ environ["PRODUCTION"] = environ["PRODUCTION"] if "PRODUCTION" in environ and env
 from signal import signal, SIGINT, SIGTERM
 from time import time
 from random import randint
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from aiohttp import TCPConnector, ClientSession
 from asyncio import sleep, wait, run, gather, create_task
 from uuid import uuid4
-from pytz import utc
 from traceback import format_exc
 
 from discord import Webhook, Embed, File
@@ -63,7 +62,7 @@ class Scheduler(object):
 		while self.isServiceAvailable:
 			try:
 				await sleep(seconds_until_cycle())
-				t = datetime.now().astimezone(utc)
+				t = datetime.now().astimezone(timezone.utc)
 				timeframes = get_accepted_timeframes(t)
 
 				if "1m" in timeframes:
@@ -114,7 +113,7 @@ class Scheduler(object):
 						if data["start"] > time() or int(data["start"] / 60) % data["period"] != int(time() / 60) % data["period"]: continue
 
 						if data.get("exclude") == "outside us market hours":
-							today = datetime.now().astimezone(utc)
+							today = datetime.now().astimezone(timezone.utc)
 							if today.hour < 14 or (today.hour == 14 and today.minute < 30) or today.hour > 21: continue
 							yesterday = today.replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=1)
 							startTime = yesterday.strftime("%Y%m%d")
@@ -126,7 +125,7 @@ class Scheduler(object):
 									print(f"Skipping post {guildId}/{post.id}")
 									continue
 						elif data.get("exclude") == "weekends":
-							weekday = datetime.now().astimezone(utc).weekday()
+							weekday = datetime.now().astimezone(timezone.utc).weekday()
 							if weekday == 5 or weekday == 6:
 								print(f"Skipping post {guildId}/{post.id}")
 								continue
