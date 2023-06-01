@@ -94,14 +94,14 @@ class Scheduler(object):
 					if not environ["PRODUCTION"] and guildId != "926518026457739304":
 						continue
 
-					guild = await self.guildProperties.get(guildId, {})
-					if not guild:
-						guild = (await database.document(f"discord/properties/guilds/{guildId}").get()).to_dict()
-					if guild.get("stale", {}).get("count", 0) > 0:
+					guildProperties = await self.guildProperties.get(guildId, {})
+					if not guildProperties:
+						guildProperties = (await database.document(f"discord/properties/guilds/{guildId}").get()).to_dict()
+					if guildProperties.get("stale", {}).get("count", 0) > 0:
 						print(f"Skipping post {guildId}/{post.id} due to stale guild")
 						continue
-					accountId = guild.get("settings", {}).get("setup", {}).get("connection")
-					user = await self.accountProperties.get(accountId, {})
+					accountId = guildProperties.get("settings", {}).get("setup", {}).get("connection")
+					userProperties = await self.accountProperties.get(accountId, {})
 
 					async for post in guild.stream():
 						data = post.to_dict()
@@ -131,7 +131,7 @@ class Scheduler(object):
 								print(f"Skipping post {guildId}/{post.id}")
 								continue
 
-						if not guild:
+						if not guildProperties:
 							print(f"Deleting post {guildId}/{post.id} due to missing guild")
 							await post.reference.delete()
 
@@ -140,15 +140,15 @@ class Scheduler(object):
 							authorId=data["authorId"],
 							channelId=data["channelId"],
 							guildId=guildId,
-							accountProperties=user,
-							guildProperties=guild
+							accountProperties=userProperties,
+							guildProperties=guildProperties
 						)
 
 						if not request.scheduled_posting_available():
 							print(f"Skipping post {guildId}/{post.id} due to missing subscription")
 							continue
 
-						subscriptions = sorted(user["customer"]["subscriptions"].keys())
+						subscriptions = sorted(userProperties["customer"]["subscriptions"].keys())
 						key = f"{data['authorId']} {subscriptions} {' '.join(data['arguments'])}"
 						if key in requestMap:
 							print(f"Using cached response for post {guildId}/{post.id}")
