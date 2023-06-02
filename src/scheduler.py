@@ -62,6 +62,16 @@ class Scheduler(object):
 	# -------------------------
 
 	async def run(self):
+		headers = {"Authorization": f"Bot {environ['DISCORD_PRODUCTION_TOKEN']}"}
+		conn = TCPConnector(limit=5)
+		async with ClientSession(connector=conn) as session:
+			async with session.get("https://discord.com/api/channels/1091317010551554118/webhooks", headers=headers) as response:
+				webhooks = await response.json()
+				print(webhooks)
+			async with session.get("https://discord.com/api/channels/1091317010551554119/webhooks", headers=headers) as response:
+				webhooks = await response.json()
+				print(webhooks)
+
 		while self.isServiceAvailable:
 			try:
 				await sleep(seconds_until_cycle())
@@ -357,6 +367,8 @@ class Scheduler(object):
 			webhooksEndpoint = f"https://discord.com/api/channels/{request.channelId}/webhooks"
 			headers = {"Authorization": f"Bot {environ['DISCORD_PRODUCTION_TOKEN']}"}
 			async with session.get(webhooksEndpoint, headers=headers) as response:
+				if response.status != 200:
+					raise NotFound(response, "couldn't get webhooks")
 				webhooks = await response.json()
 			existing = next((e for e in webhooks if e["user"]["id"] == botId), None)
 
