@@ -4,6 +4,8 @@ environ["PRODUCTION"] = environ["PRODUCTION"] if "PRODUCTION" in environ and env
 from signal import signal, SIGINT, SIGTERM
 from time import time
 from random import randint
+from io import BytesIO
+from base64 import b64encode
 from datetime import datetime, timedelta, timezone
 from aiohttp import TCPConnector, ClientSession
 from asyncio import sleep, wait, run, gather, create_task
@@ -27,8 +29,9 @@ from helpers.utils import seconds_until_cycle, get_accepted_timeframes
 
 database = FirestoreClient()
 
+ALPHABOT_ID = "401328409499664394"
 NAMES = {
-	"401328409499664394": ("Alpha", "https://storage.alpha.bot/Icon.png"),
+	ALPHABOT_ID: ("Alpha", "https://storage.alpha.bot/Icon.png"),
 	"487714342301859854": ("Alpha (Beta)", MISSING)
 }
 
@@ -105,7 +108,7 @@ class Scheduler(object):
 					async for post in guild.stream():
 						data = post.to_dict()
 
-						if data.get("timestamp", time()) < time() - 86400 * 5:
+						if data.get("timestamp", time()) < time() - 86400 * 2:
 							print(f"Deleting stale post {guildId}/{post.id}")
 							await post.reference.delete()
 							continue
@@ -349,13 +352,49 @@ class Scheduler(object):
 			if len(files) == 0 and len(embeds) == 0:
 				raise Exception("no files or embeds to send")
 
+			botId = data.get("botId", ALPHABOT_ID)
+
+			webhooksEndpoint = f"https://discord.com/api/channels/{request.channelId}/webhooks"
+			headers = {"Authorization": f"Bot {environ['DISCORD_PRODUCTION_TOKEN']}"}
+			async with session.get(webhooksEndpoint, headers=headers) as response:
+				webhooks = await response.json()
+			existing = next((e for e in webhooks if e["user"]["id"] == botId), None)
+
+			if existing is None:
+				# Get bot user info
+				async with session.get(f"https://discord.com/api/users/{botId}", headers=headers) as response:
+					if response.status == 200:
+						# Download bot icon
+						botUser = await response.json()
+						username = botUser["username"]
+						iconUrl = f"https://cdn.discordapp.com/avatars/{botId}/{botUser['avatar']}.png?size=512"
+						async with session.get(iconUrl) as response:
+							botIcon = BytesIO(await response.read())
+					else:
+						# Use default icon
+						botId = ALPHABOT_ID
+						username, iconUrl = NAMES.get(botId)
+						async with session.get(iconUrl) as response:
+							botIcon = BytesIO(await response.read())
+
+				webhookData = {"name": username, "avatar": f"data:image/png;base64,{b64encode(botIcon.getvalue()).decode('utf-8')}"}
+				async with session.post(webhooksEndpoint, headers=headers, json=webhookData) as response:
+					if response.status != 200:
+						raise NotFound(response, "failed to create webhook")
+					data["url"] = (await response.json())["url"]
+					await reference.update({"url": data["url"]})
+
+			elif existing["url"] != data["url"]:
+				data["url"] = existing["url"]
+				await reference.update({"url": data["url"]})
+
 			content = None
 			if data.get("message") is not None:
 				embeds.append(Embed(description=data.get("message"), color=constants.colors["purple"]))
 			if data.get("tag") is not None:
 				content = f"<@&{message.get('tag')}>"
 
-			name, avatar = NAMES.get(data.get("botId", "401328409499664394"), (MISSING, MISSING))
+			name, avatar = NAMES.get(botId, (MISSING, MISSING))
 
 			webhook = Webhook.from_url(data["url"], session=session)
 			message = await webhook.send(
@@ -372,11 +411,12 @@ class Scheduler(object):
 				await reference.set({"status": DELETE_FIELD, "timestamp": DELETE_FIELD}, merge=True)
 		except (KeyboardInterrupt, SystemExit): pass
 		except NotFound:
+			print(format_exc())
 			print(f"Webhook not found in {request.guildId}")
 			if data.get("status") != "failed":
 				await database.document(f"discord/properties/messages/{str(uuid4())}").set({
 					"title": "Scheduled post is failing!",
-					"description": f"You have scheduled a post (`/{data['command']} {' '.join(data['arguments'])}`) to be sent to a channel that no longer exists or no longer has Alpha.bot's webhook. Use `/schedule list` to review, delete and reschedule the post if you want to keep it. If the post keeps failing, it will be automatically deleted in 5 days.",
+					"description": f"You have scheduled a post (`/{data['command']} {' '.join(data['arguments'])}`) to be sent to a channel that no longer exists or no longer has Alpha.bot's webhook. Use `/schedule list` to review, delete and reschedule the post if you want to keep it. If the post keeps failing, it will be automatically deleted in 2 days.",
 					"subtitle": "Scheduled posts",
 					"color": 6765239,
 					"user": data['authorId'],

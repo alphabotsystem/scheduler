@@ -26,6 +26,11 @@ spec:
         env:
           - name: PRODUCTION
             value: "1"
+          - name: DISCORD_PRODUCTION_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: alpha-credentials
+                key: DISCORD_PRODUCTION_TOKEN
           - name: IEXC_KEY
             valueFrom:
               secretKeyRef:
