@@ -62,16 +62,6 @@ class Scheduler(object):
 	# -------------------------
 
 	async def run(self):
-		headers = {"Authorization": f"Bot {environ['DISCORD_PRODUCTION_TOKEN']}"}
-		conn = TCPConnector(limit=5)
-		async with ClientSession(connector=conn) as session:
-			async with session.get("https://discord.com/api/channels/1091317010551554118/webhooks", headers=headers) as response:
-				webhooks = await response.json()
-				print(webhooks)
-			async with session.get("https://discord.com/api/channels/1091317010551554119/webhooks", headers=headers) as response:
-				webhooks = await response.json()
-				print(webhooks)
-
 		while self.isServiceAvailable:
 			try:
 				await sleep(seconds_until_cycle())
