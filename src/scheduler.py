@@ -30,9 +30,10 @@ from helpers.utils import seconds_until_cycle, get_accepted_timeframes
 database = FirestoreClient()
 
 ALPHABOT_ID = "401328409499664394"
+ALPHABOT_BETA_ID = "487714342301859854"
 NAMES = {
 	ALPHABOT_ID: ("Alpha", "https://storage.alpha.bot/Icon.png"),
-	"487714342301859854": ("Alpha (Beta)", MISSING)
+	ALPHABOT_BETA_ID: ("Alpha (Beta)", MISSING)
 }
 
 
@@ -384,6 +385,8 @@ class Scheduler(object):
 				raise Exception("no files or embeds to send")
 
 			botId = data.get("botId", ALPHABOT_ID)
+			if botId == ALPHABOT_BETA_ID and environ["PRODUCTION"]:
+				return
 
 			webhooksEndpoint = f"https://discord.com/api/channels/{request.channelId}/webhooks"
 			headers = {"Authorization": f"Bot {environ['DISCORD_PRODUCTION_TOKEN']}"}
@@ -416,10 +419,6 @@ class Scheduler(object):
 						raise NotFound(response, "failed to create webhook")
 					data["url"] = (await response.json())["url"]
 					await reference.update({"url": data["url"]})
-
-			elif "url" not in existing:
-				print(existing)
-				raise Exception("webhook doesn't have url")
 
 			elif existing["url"] != data["url"]:
 				data["url"] = existing["url"]
