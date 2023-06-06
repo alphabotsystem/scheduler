@@ -99,6 +99,7 @@ class Scheduler(object):
 					guildProperties = await self.guildProperties.get(guildId, {})
 					if not guildProperties:
 						guildProperties = (await database.document(f"discord/properties/guilds/{guildId}").get()).to_dict()
+						if not guildProperties: guildProperties = {}
 					if guildProperties.get("stale", {}).get("count", 0) > 0:
 						print(f"Skipping post {guildId}/{post.id} due to stale guild")
 						continue
