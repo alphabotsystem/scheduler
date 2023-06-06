@@ -216,6 +216,36 @@ class Scheduler(object):
 
 				return files, embeds
 
+			elif data["command"] == "layout":
+				responseMessage, task = await process_chart_arguments(data["arguments"][2:], ["TradingView Relay"], tickerId=data["arguments"][1].upper())
+
+				if responseMessage is not None:
+					description = "Detailed guide with examples is available on [our website](https://www.alpha.bot/features/layouts)."
+					embed = Embed(title=responseMessage, description=description, color=constants.colors["gray"])
+					embed.set_author(name="Invalid argument", icon_url=static_storage.error_icon)
+					return [], [embed]
+
+				task["TradingView Relay"]["url"] = data["arguments"][0]
+
+				currentTask = task.get(task.get("currentPlatform"))
+				timeframes = task.pop("timeframes")
+				for p, t in timeframes.items(): task[p]["currentTimeframe"] = t[0]
+
+				payload, responseMessage = await process_task(task, "chart", origin=origin)
+
+				files, embeds = [], []
+				if payload is None:
+					errorMessage = f"Requested chart for `{currentTask.get('ticker').get('name')}` is not available." if responseMessage is None else responseMessage
+					embed = Embed(title=errorMessage, color=constants.colors["gray"])
+					embed.set_author(name="Chart not available", icon_url=static_storage.error_icon)
+					embeds.append(embed)
+				else:
+					task["currentPlatform"] = payload.get("platform")
+					currentTask = task.get(task.get("currentPlatform"))
+					files.append(File(payload.get("data"), filename="{:.0f}-{}-{}.png".format(time() * 1000, request.authorId, randint(1000, 9999))))
+
+				return files, embeds
+
 			elif data["command"] == "heatmap":
 				platforms = request.get_platform_order_for("hmap", assetType=data["arguments"][0])
 				responseMessage, task = await process_heatmap_arguments(data["arguments"], platforms)
