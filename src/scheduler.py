@@ -420,6 +420,10 @@ class Scheduler(object):
 					data["url"] = (await response.json())["url"]
 					await reference.update({"url": data["url"]})
 
+			elif "url" not in existing:
+				print(existing)
+				raise Exception("webhook doesn't have a url")
+
 			elif existing["url"] != data["url"]:
 				data["url"] = existing["url"]
 				await reference.update({"url": data["url"]})
