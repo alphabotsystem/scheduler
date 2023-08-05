@@ -160,7 +160,7 @@ class Scheduler(object):
 						else:
 							print(f"Creating new request for post {guildId}/{post.id}")
 							requestMap[key] = [
-								create_task(self.process_request(request, data)),
+								create_task(self.process_request(session, request, data)),
 								[len(requests)]
 							]
 						requests.append((data, request, post))
@@ -180,7 +180,7 @@ class Scheduler(object):
 				print(format_exc())
 				if environ["PRODUCTION"]: self.logging.report_exception()
 
-	async def process_request(self, request, data):
+	async def process_request(self, session, request, data):
 		try:
 			botId = data.get("botId", "401328409499664394")
 			origin = "default" if botId == "401328409499664394" else botId
@@ -345,7 +345,7 @@ class Scheduler(object):
 						if page > 4: break
 
 					response = []
-					for e in rawData[:max(10, limit)]:
+					for e in rawData[:max(10, int(limit))]:
 						if e.get("price_change_percentage_24h_in_currency", None) is not None:
 							response.append({"name": e["name"], "symbol": e["symbol"].upper(), "change": e["price_change_percentage_24h_in_currency"]})
 
@@ -358,12 +358,11 @@ class Scheduler(object):
 						embed.add_field(name=f"{token['name']} (`{token['symbol']}`)", value="{:+,.2f}%".format(token["change"]), inline=True)
 
 				else:
-					async with ClientSession() as session:
-						url = f"https://api.twelvedata.com/market_movers/{market.replace(' ', '_')}?apikey={environ['TWELVEDATA_KEY']}&direction={direction}&outputsize=10"
-						async with session.get(url) as resp:
-							response = await resp.json()
-							for asset in response["values"]:
-								embed.add_field(name=f"{asset['name']} (`{asset['symbol']}`)", value="{:+,.2f}%".format(asset["percent_change"]), inline=True)
+					url = f"https://api.twelvedata.com/market_movers/{market.replace(' ', '_')}?apikey={environ['TWELVEDATA_KEY']}&direction={direction}&outputsize=10"
+					async with session.get(url) as resp:
+						response = await resp.json()
+						for asset in response["values"]:
+							embed.add_field(name=f"{asset['name']} (`{asset['symbol']}`)", value="{:+,.2f}%".format(asset["percent_change"]), inline=True)
 
 				return [], [embed]
 
