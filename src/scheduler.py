@@ -355,7 +355,7 @@ class Scheduler(object):
 						response = sorted(response, key=lambda k: k["change"])[:10]
 
 					for token in response:
-						embed.add_field(name=f"{token['name']} ({token['symbol']})", value="{:+,.2f}%".format(token["change"]), inline=True)
+						embed.add_field(name=f"{token['name']} (`{token['symbol']}`)", value="{:+,.2f}%".format(token["change"]), inline=True)
 
 				else:
 					async with ClientSession() as session:
@@ -363,7 +363,7 @@ class Scheduler(object):
 						async with session.get(url) as resp:
 							response = await resp.json()
 							for asset in response["values"]:
-								embed.add_field(name=f"{asset['name']} ({asset['symbol']})", value="{:+,.2f}%".format(asset["percent_change"]), inline=True)
+								embed.add_field(name=f"{asset['name']} (`{asset['symbol']}`)", value="{:+,.2f}%".format(asset["percent_change"]), inline=True)
 
 				return [], [embed]
 
