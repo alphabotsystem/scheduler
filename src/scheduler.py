@@ -327,9 +327,15 @@ class Scheduler(object):
 
 				return [], [embed]
 
-			elif data["command"] == "lookup top-performers":
+			elif data["command"] == "lookup market-movers":
 				[category, limit] = data["arguments"]
-				if category == "crypto gainers":
+
+				parts = category.split(" ")
+				direction = parts.pop()
+				market = " ".join(parts)
+				embed = Embed(title=f"Top {direction}", color=constants.colors["deep purple"])
+
+				if market == "crypto":
 					rawData = []
 					cg = CoinGeckoAPI(api_key=environ["COINGECKO_API_KEY"])
 					page = 1
@@ -339,33 +345,25 @@ class Scheduler(object):
 						if page > 4: break
 
 					response = []
-					for e in rawData[:max(10, int(limit))]:
+					for e in rawData[:max(10, limit)]:
 						if e.get("price_change_percentage_24h_in_currency", None) is not None:
 							response.append({"symbol": e["symbol"].upper(), "change": e["price_change_percentage_24h_in_currency"]})
-					response = sorted(response, key=lambda k: k["change"], reverse=True)[:10]
 
-					embed = Embed(title="Top gainers", color=constants.colors["deep purple"])
+					if direction == "gainers":
+						response = sorted(response, key=lambda k: k["change"], reverse=True)[:10]
+					elif direction == "losers":
+						response = sorted(response, key=lambda k: k["change"])[:10]
+
 					for token in response:
-						embed.add_field(name=token["symbol"], value="Gained {:,.2f} %".format(token["change"]), inline=True)
+						embed.add_field(name=f"{token['name']} ({token['symbol']})", value="{:+,.2f}%".format(token["change"]), inline=True)
 
-				elif category == "crypto losers":
-					rawData = []
-					cg = CoinGeckoAPI(api_key=environ["COINGECKO_API_KEY"])
-					page = 1
-					while True:
-						rawData += cg.get_coins_markets(vs_currency="usd", order="market_cap_desc", per_page=250, page=page, price_change_percentage="24h")
-						page += 1
-						if page > 4: break
-
-					response = []
-					for e in rawData[:max(10, int(limit))]:
-						if e.get("price_change_percentage_24h_in_currency", None) is not None:
-							response.append({"symbol": e["symbol"].upper(), "change": e["price_change_percentage_24h_in_currency"]})
-					response = sorted(response, key=lambda k: k["change"])[:10]
-
-					embed = Embed(title="Top losers", color=constants.colors["deep purple"])
-					for token in response:
-						embed.add_field(name=token["symbol"], value="Lost {:,.2f} %".format(token["change"]), inline=True)
+				else:
+					async with ClientSession() as session:
+						url = f"https://api.twelvedata.com/market_movers/{market.replace(' ', '_')}?apikey={environ['TWELVEDATA_KEY']}&direction={direction}&outputsize=10"
+						async with session.get(url) as resp:
+							response = await resp.json()
+							for asset in response["values"]:
+								embed.add_field(name=f"{asset['name']} ({asset['symbol']})", value="{:+,.2f}%".format(asset["percent_change"]), inline=True)
 
 				return [], [embed]
 
