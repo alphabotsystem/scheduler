@@ -219,7 +219,7 @@ class Scheduler(object):
 				return files, embeds
 
 			elif data["command"] == "layout":
-				responseMessage, task = await process_chart_arguments(data["arguments"][2:], ["TradingView Relay"], tickerId=data["arguments"][1].upper())
+				responseMessage, task = await process_chart_arguments(data["arguments"][2:], ["TradingView Relay"], tickerId=data["arguments"][1].upper(), defaults=request.guildProperties["charting"])
 
 				if responseMessage is not None:
 					description = "Detailed guide with examples is available on [our website](https://www.alpha.bot/features/layouts)."
