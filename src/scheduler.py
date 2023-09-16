@@ -31,9 +31,18 @@ database = FirestoreClient()
 
 ALPHABOT_ID = "401328409499664394"
 ALPHABOT_BETA_ID = "487714342301859854"
-NAMES = {
-	ALPHABOT_ID: ("Alpha", "https://storage.alpha.bot/Icon.png"),
-	ALPHABOT_BETA_ID: ("Alpha (Beta)", MISSING)
+BOT_CONFIG = {
+	ALPHABOT_ID: ("Alpha", "https://storage.alpha.bot/Icon.png", "DISCORD_PRODUCTION_TOKEN"),
+	ALPHABOT_BETA_ID: ("Alpha (Beta)", MISSING, "DISCORD_PRODUCTION_TOKEN"),
+	1051325737631756339: (MISSING, MISSING, "TOKEN_HG60DTuv5GYWDUVX1ENONGdvEJ43"),
+	700764913257283625: (MISSING, MISSING, "TOKEN_N8V1MEBUJFSVP4IQMUXYYIEDFYI1"),
+	1115262078853333052: (MISSING, MISSING, "TOKEN_H59TRYWEQLSI0U1UZLDFZRTXPXC2"),
+	1119204848634703885: (MISSING, MISSING, "TOKEN_K4OIVMRPJBA3OLYBULWAYCNHGJK2"),
+	1088501129639374909: (MISSING, MISSING, "TOKEN_CIPIGOZSPUQQZHUVQ9SOIS6MAH53"),
+	1140389835950010520: (MISSING, MISSING, "TOKEN_173T1ODOTSXHYM1GRAIVQYDVW0I1"),
+	1145489833075146772: (MISSING, MISSING, "TOKEN_NI7GCMTB8LGCLNV7H2YEJ2VUFHI1"),
+	1145889544227532841: (MISSING, MISSING, "TOKEN_LLZ0V7CAZXVSVC0M1MVQCKOXCJV2"),
+	1147165285623795843: (MISSING, MISSING, "TOKEN_SHDNTSTH4TPFNG0CO1LBVDANLVO2"),
 }
 
 
@@ -385,8 +394,10 @@ class Scheduler(object):
 			if botId == ALPHABOT_BETA_ID and environ["PRODUCTION"]:
 				return
 
+			name, avatar, token = BOT_CONFIG.get(botId, BOT_CONFIG[ALPHABOT_ID])
+
 			webhooksEndpoint = f"https://discord.com/api/channels/{request.channelId}/webhooks"
-			headers = {"Authorization": f"Bot {environ['DISCORD_PRODUCTION_TOKEN']}"}
+			headers = {"Authorization": f"Bot {environ[token]}"}
 			async with session.get(webhooksEndpoint, headers=headers) as response:
 				if response.status != 200:
 					raise NotFound(response, "couldn't get webhooks")
@@ -405,8 +416,6 @@ class Scheduler(object):
 							botIcon = BytesIO(await response.read())
 					else:
 						# Use default icon
-						botId = ALPHABOT_ID
-						username, iconUrl = NAMES.get(botId)
 						async with session.get(iconUrl) as response:
 							botIcon = BytesIO(await response.read())
 
@@ -431,8 +440,6 @@ class Scheduler(object):
 			if data.get("tag") is not None:
 				content = f"<@&{message.get('tag')}>"
 
-			name, avatar = NAMES.get(botId, (MISSING, MISSING))
-
 			webhook = Webhook.from_url(data["url"], session=session)
 			message = await webhook.send(
 				content=content,
@@ -453,7 +460,7 @@ class Scheduler(object):
 			if data.get("status") != "failed":
 				await database.document(f"discord/properties/messages/{str(uuid4())}").set({
 					"title": "Scheduled post is failing!",
-					"description": f"You have scheduled a post (`/{data['command']} {' '.join(data['arguments'])}`) to be sent to a channel that no longer exists or no longer has Alpha.bot's webhook. Use `/schedule list` to review, delete and reschedule the post if you want to keep it. If the post keeps failing, it will be automatically deleted in 2 days.",
+					"description": f"You have scheduled a post (`/{data['command']} {' '.join([for e in data['arguments'] if e != ""])}`) to be sent to a channel that no longer exists or no longer has Alpha.bot's webhook. Use `/schedule list` to review, delete and reschedule the post if you want to keep it. If the post keeps failing, it will be automatically deleted in 2 days.",
 					"subtitle": "Scheduled posts",
 					"color": 6765239,
 					"user": data['authorId'],

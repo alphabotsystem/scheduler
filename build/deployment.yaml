@@ -31,6 +31,51 @@ spec:
               secretKeyRef:
                 name: alpha-credentials
                 key: DISCORD_PRODUCTION_TOKEN
+          - name: TOKEN_HG60DTuv5GYWDUVX1ENONGdvEJ43
+            valueFrom:
+              secretKeyRef:
+                name: alpha-credentials
+                key: TOKEN_HG60DTuv5GYWDUVX1ENONGdvEJ43
+          - name: TOKEN_N8V1MEBUJFSVP4IQMUXYYIEDFYI1
+            valueFrom:
+              secretKeyRef:
+                name: alpha-credentials
+                key: TOKEN_N8V1MEBUJFSVP4IQMUXYYIEDFYI1
+          - name: TOKEN_H59TRYWEQLSI0U1UZLDFZRTXPXC2
+            valueFrom:
+              secretKeyRef:
+                name: alpha-credentials
+                key: TOKEN_H59TRYWEQLSI0U1UZLDFZRTXPXC2
+          - name: TOKEN_K4OIVMRPJBA3OLYBULWAYCNHGJK2
+            valueFrom:
+              secretKeyRef:
+                name: alpha-credentials
+                key: TOKEN_K4OIVMRPJBA3OLYBULWAYCNHGJK2
+          - name: TOKEN_CIPIGOZSPUQQZHUVQ9SOIS6MAH53
+            valueFrom:
+              secretKeyRef:
+                name: alpha-credentials
+                key: TOKEN_CIPIGOZSPUQQZHUVQ9SOIS6MAH53
+          - name: TOKEN_173T1ODOTSXHYM1GRAIVQYDVW0I1
+            valueFrom:
+              secretKeyRef:
+                name: alpha-credentials
+                key: TOKEN_173T1ODOTSXHYM1GRAIVQYDVW0I1
+          - name: TOKEN_NI7GCMTB8LGCLNV7H2YEJ2VUFHI1
+            valueFrom:
+              secretKeyRef:
+                name: alpha-credentials
+                key: TOKEN_NI7GCMTB8LGCLNV7H2YEJ2VUFHI1
+          - name: TOKEN_LLZ0V7CAZXVSVC0M1MVQCKOXCJV2
+            valueFrom:
+              secretKeyRef:
+                name: alpha-credentials
+                key: TOKEN_LLZ0V7CAZXVSVC0M1MVQCKOXCJV2
+          - name: TOKEN_SHDNTSTH4TPFNG0CO1LBVDANLVO2
+            valueFrom:
+              secretKeyRef:
+                name: alpha-credentials
+                key: TOKEN_SHDNTSTH4TPFNG0CO1LBVDANLVO2
           - name: IEXC_KEY
             valueFrom:
               secretKeyRef:
