@@ -460,7 +460,7 @@ class Scheduler(object):
 			if data.get("status") != "failed":
 				await database.document(f"discord/properties/messages/{str(uuid4())}").set({
 					"title": "Scheduled post is failing!",
-					"description": f"You have scheduled a post (`/{data['command']} {' '.join([for e in data['arguments'] if e != ""])}`) to be sent to a channel that no longer exists or no longer has Alpha.bot's webhook. Use `/schedule list` to review, delete and reschedule the post if you want to keep it. If the post keeps failing, it will be automatically deleted in 2 days.",
+					"description": f"You have scheduled a post (`/{data['command']} {' '.join([e for e in data['arguments'] if e != ""])}`) to be sent to a channel that no longer exists or no longer has Alpha.bot's webhook. Use `/schedule list` to review, delete and reschedule the post if you want to keep it. If the post keeps failing, it will be automatically deleted in 2 days.",
 					"subtitle": "Scheduled posts",
 					"color": 6765239,
 					"user": data['authorId'],
