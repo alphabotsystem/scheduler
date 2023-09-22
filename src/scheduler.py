@@ -137,12 +137,10 @@ class Scheduler(object):
 								if resp.status != 200: continue
 								resp = await resp.json()
 								if resp[0]["date"] != today.strftime("%Y-%m-%d"):
-									print(f"Skipping post {guildId}/{post.id}")
 									continue
 						elif data.get("exclude") == "weekends":
 							weekday = datetime.now().astimezone(timezone.utc).weekday()
 							if weekday == 5 or weekday == 6:
-								print(f"Skipping post {guildId}/{post.id}")
 								continue
 
 						if not guildProperties:
@@ -165,10 +163,8 @@ class Scheduler(object):
 						subscriptions = sorted(userProperties["customer"]["subscriptions"].keys())
 						key = f"{data['authorId']} {subscriptions} {' '.join(data['arguments'])}"
 						if key in requestMap:
-							print(f"Using cached response for post {guildId}/{post.id}")
 							requestMap[key][1].append(len(requests))
 						else:
-							print(f"Creating new request for post {guildId}/{post.id}")
 							requestMap[key] = [
 								create_task(self.process_request(session, request, data)),
 								[len(requests)]
