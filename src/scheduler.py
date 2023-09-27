@@ -189,7 +189,7 @@ class Scheduler(object):
 	async def process_request(self, session, request, data):
 		try:
 			botId = data.get("botId", "401328409499664394")
-			origin = "default" if botId == "401328409499664394" else botId
+			origin = "default" if botId in [ALPHABOT_ID, ALPHABOT_BETA_ID] else botId
 
 			if data["command"] == "chart":
 				platforms = request.get_platform_order_for("c")
