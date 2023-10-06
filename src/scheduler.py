@@ -180,11 +180,11 @@ class Scheduler(object):
 
 				tasks = []
 				for key, [response, indices] in requestMap.items():
-					files, embeds, tasks = await response
+					files, embeds, t = await response
 					for i in indices:
 						data, request, post = requests[i]
 						print(f"Pushing post {request.guildId}/{post.id}")
-						tasks.append(create_task(self.push_post(session, files, embeds, tasks, data, post.reference, request)))
+						tasks.append(create_task(self.push_post(session, files, embeds, t, data, post.reference, request)))
 				if len(tasks) > 0: await wait(tasks)
 
 				print("Task finished in", time() - startTimestamp, "seconds")
