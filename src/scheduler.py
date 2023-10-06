@@ -17,6 +17,7 @@ from discord.errors import NotFound
 from discord.utils import MISSING
 from google.cloud.firestore import AsyncClient as FirestoreClient, DELETE_FIELD
 from google.cloud.error_reporting import Client as ErrorReportingClient
+from google.cloud import pubsub_v1
 from pycoingecko import CoinGeckoAPI
 
 from helpers import constants
