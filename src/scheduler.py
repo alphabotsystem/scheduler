@@ -180,11 +180,11 @@ class Scheduler(object):
 
 				tasks = []
 				for key, [response, indices] in requestMap.items():
-					files, embeds = await response
+					files, embeds, tasks = await response
 					for i in indices:
 						data, request, post = requests[i]
 						print(f"Pushing post {request.guildId}/{post.id}")
-						tasks.append(create_task(self.push_post(session, files, embeds, data, post.reference, request)))
+						tasks.append(create_task(self.push_post(session, files, embeds, tasks, data, post.reference, request)))
 				if len(tasks) > 0: await wait(tasks)
 
 				print("Task finished in", time() - startTimestamp, "seconds")
@@ -235,7 +235,7 @@ class Scheduler(object):
 					description = "[Advanced Charting add-on](https://www.alpha.bot/pro/advanced-charting) unlocks additional assets, indicators, timeframes and more." if responseMessage.endswith("add-on.") else "Detailed guide with examples is available on [our website](https://www.alpha.bot/features/charting)."
 					embed = Embed(title=responseMessage, description=description, color=constants.colors["gray"])
 					embed.set_author(name="Invalid argument", icon_url=static_storage.error_icon)
-					return [], [embed]
+					return [], [embed], [task]
 
 				currentTask = task.get(task.get("currentPlatform"))
 				timeframes = task.pop("timeframes")
@@ -258,7 +258,7 @@ class Scheduler(object):
 					currentTask = task.get(task.get("currentPlatform"))
 					files.append(File(payload.get("data"), filename="{:.0f}-{}-{}.png".format(time() * 1000, request.authorId, randint(1000, 9999))))
 
-				return files, embeds
+				return files, embeds, [task]
 
 			elif data["command"] == "layout":
 				responseMessage, task = await process_chart_arguments(data["arguments"][2:], ["TradingView Relay"], tickerId=data["arguments"][1].upper(), defaults=request.guildProperties["charting"])
@@ -267,7 +267,7 @@ class Scheduler(object):
 					description = "Detailed guide with examples is available on [our website](https://www.alpha.bot/features/layouts)."
 					embed = Embed(title=responseMessage, description=description, color=constants.colors["gray"])
 					embed.set_author(name="Invalid argument", icon_url=static_storage.error_icon)
-					return [], [embed]
+					return [], [embed], [task]
 
 				task["TradingView Relay"]["url"] = data["arguments"][0]
 
@@ -288,7 +288,7 @@ class Scheduler(object):
 					currentTask = task.get(task.get("currentPlatform"))
 					files.append(File(payload.get("data"), filename="{:.0f}-{}-{}.png".format(time() * 1000, request.authorId, randint(1000, 9999))))
 
-				return files, embeds
+				return files, embeds, [task]
 
 			elif data["command"] == "heatmap":
 				platforms = request.get_platform_order_for("hmap", assetType=data["arguments"][0])
@@ -297,7 +297,7 @@ class Scheduler(object):
 				if responseMessage is not None:
 					embed = Embed(title=responseMessage, description="Detailed guide with examples is available on [our website](https://www.alpha.bot/features/heatmaps).", color=constants.colors["gray"])
 					embed.set_author(name="Invalid argument", icon_url=static_storage.error_icon)
-					return [], [embed]
+					return [], [embed], [task]
 
 				currentTask = task.get(task.get("currentPlatform"))
 				timeframes = task.pop("timeframes")
@@ -314,7 +314,7 @@ class Scheduler(object):
 				else:
 					files.append(File(payload.get("data"), filename="{:.0f}-{}-{}.png".format(time() * 1000, request.authorId, randint(1000, 9999))))
 
-				return files, embeds
+				return files, embeds, [task]
 
 			elif data["command"] == "price":
 				platforms = request.get_platform_order_for("p")
@@ -323,7 +323,7 @@ class Scheduler(object):
 				if responseMessage is not None:
 					embed = Embed(title=responseMessage, description="Detailed guide with examples is available on [our website](https://www.alpha.bot/features/prices).", color=constants.colors["gray"])
 					embed.set_author(name="Invalid argument", icon_url=static_storage.error_icon)
-					return [], [embed]
+					return [], [embed], [task]
 
 				currentTask = task.get(task.get("currentPlatform"))
 				payload, responseMessage = await process_task(task, "quote")
@@ -343,7 +343,7 @@ class Scheduler(object):
 						embed.set_author(name=payload["title"], icon_url=payload.get("thumbnailUrl"))
 						embed.set_footer(text=payload["sourceText"])
 
-				return [], [embed]
+				return [], [embed], [task]
 
 			elif data["command"] == "volume":
 				platforms = request.get_platform_order_for("v")
@@ -352,7 +352,7 @@ class Scheduler(object):
 				if responseMessage is not None:
 					embed = Embed(title=responseMessage, description="Detailed guide with examples is available on [our website](https://www.alpha.bot/features/volume).", color=constants.colors["gray"])
 					embed.set_author(name="Invalid argument", icon_url=static_storage.error_icon)
-					return [], [embed]
+					return [], [embed], [task]
 
 				currentTask = task.get(task.get("currentPlatform"))
 				payload, responseMessage = await process_task(task, "quote")
@@ -367,7 +367,7 @@ class Scheduler(object):
 					embed.set_author(name=payload["title"], icon_url=payload.get("thumbnailUrl"))
 					embed.set_footer(text=payload["sourceText"])
 
-				return [], [embed]
+				return [], [embed], [task]
 
 			elif data["command"] == "lookup market-movers":
 				[category, limit] = data["arguments"]
@@ -406,7 +406,7 @@ class Scheduler(object):
 						for asset in response["values"]:
 							embed.add_field(name=f"{asset['name']} (`{asset['symbol']}`)", value="{:+,.2f}%".format(asset["percent_change"]), inline=True)
 
-				return [], [embed]
+				return [], [embed], [task]
 
 			else:
 				raise Exception(f"invalid command: {data['command']}")
@@ -416,9 +416,9 @@ class Scheduler(object):
 			print(data["authorId"], data["channelId"])
 			print(format_exc())
 			if environ["PRODUCTION"]: self.logging.report_exception()
-		return [], []
+		return [], [], []
 
-	async def push_post(self, session, files, embeds, data, reference, request):
+	async def push_post(self, session, files, embeds, tasks, data, reference, request):
 		try:
 			if len(files) == 0 and len(embeds) == 0:
 				raise Exception("no files or embeds to send")
