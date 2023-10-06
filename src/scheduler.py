@@ -4,6 +4,7 @@ environ["PRODUCTION"] = environ["PRODUCTION"] if "PRODUCTION" in environ and env
 from signal import signal, SIGINT, SIGTERM
 from time import time
 from random import randint
+from orjson import dumps
 from io import BytesIO
 from base64 import b64encode
 from datetime import datetime, timedelta, timezone

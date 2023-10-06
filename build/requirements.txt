@@ -4,3 +4,4 @@ google-cloud-pubsub>=2.13.11
 aiohttp>=3.8.3
 discord.py[speed]>=2.0.1
 pycoingecko>=3.0.0
+orjson>=3.8.1
