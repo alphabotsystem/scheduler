@@ -407,7 +407,7 @@ class Scheduler(object):
 						for asset in response["values"]:
 							embed.add_field(name=f"{asset['name']} (`{asset['symbol']}`)", value="{:+,.2f}%".format(asset["percent_change"]), inline=True)
 
-				return [], [embed], [task]
+				return [], [embed], []
 
 			else:
 				raise Exception(f"invalid command: {data['command']}")
