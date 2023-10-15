@@ -199,7 +199,7 @@ class Scheduler(object):
 		timestamp = int(time())
 		for task in tasks:
 			currentTask = task.get(task.get("currentPlatform"))
-			base = currentTask.get("ticker", {}).get("base", "")
+			base = currentTask.get("ticker", {}).get("base")
 			if base is None: base = currentTask.get("ticker", {}).get("id", "")
 			publisher.publish(REQUESTS_TOPIC_NAME, dumps({
 				"timestamp": timestamp,
