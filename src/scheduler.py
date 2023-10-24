@@ -432,7 +432,9 @@ class Scheduler(object):
 			webhooksEndpoint = f"https://discord.com/api/channels/{request.channelId}/webhooks"
 			headers = {"Authorization": f"Bot {environ[token]}"}
 			async with session.get(webhooksEndpoint, headers=headers) as response:
-				if response.status != 200:
+				if response.status // 100 == 5:
+					raise Exception("discord is down")
+				elif response.status != 200:
 					raise NotFound(response, "couldn't get webhooks")
 				webhooks = await response.json()
 			existing = next((e for e in webhooks if e["user"]["id"] == botId), None)
