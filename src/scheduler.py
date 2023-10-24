@@ -165,6 +165,8 @@ class Scheduler(object):
 
 						if not request.scheduled_posting_available():
 							print(f"Skipping post {guildId}/{post.id} due to missing subscription")
+							if data.get("status") != "failed":
+								await post.reference.set({"status": "failed", "timestamp": time()}, merge=True)
 							continue
 
 						subscriptions = sorted(userProperties["customer"]["subscriptions"].keys())
