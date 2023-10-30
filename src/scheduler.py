@@ -203,6 +203,7 @@ class Scheduler(object):
 		for task in tasks:
 			currentTask = task.get(task.get("currentPlatform"))
 			base = currentTask.get("ticker", {}).get("base")
+			if command == "scheduled layout": command += " " + task["TradingView Relay"]["url"]
 			if base is None: base = currentTask.get("ticker", {}).get("id", "")
 			publisher.publish(REQUESTS_TOPIC_NAME, dumps({
 				"timestamp": timestamp,
