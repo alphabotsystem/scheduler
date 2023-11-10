@@ -412,7 +412,7 @@ class Scheduler(object):
 							lambda e: not e['name'].lower().startswith("test") and "testfund" not in e['name'].replace(" ", ""),
 							response["values"]
 						)
-						for asset in assets[:9]:
+						for asset in list(assets)[:9]:
 							embed.add_field(name=f"{asset['name']} (`{asset['symbol']}`)", value="{:+,.2f}%".format(asset["percent_change"]), inline=True)
 
 				return [], [embed], []
