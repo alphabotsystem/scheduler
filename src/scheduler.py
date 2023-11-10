@@ -267,14 +267,13 @@ class Scheduler(object):
 
 			elif data["command"] == "layout":
 				responseMessage, task = await process_chart_arguments(data["arguments"][2:], ["TradingView Relay"], tickerId=data["arguments"][1].upper(), defaults=request.guildProperties["charting"])
+				task["TradingView Relay"]["url"] = data["arguments"][0]
 
 				if responseMessage is not None:
 					description = "Detailed guide with examples is available on [our website](https://www.alpha.bot/features/layouts)."
 					embed = Embed(title=responseMessage, description=description, color=constants.colors["gray"])
 					embed.set_author(name="Invalid argument", icon_url=static_storage.error_icon)
 					return [], [embed], [task]
-
-				task["TradingView Relay"]["url"] = data["arguments"][0]
 
 				currentTask = task.get(task.get("currentPlatform"))
 				timeframes = task.pop("timeframes")
