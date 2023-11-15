@@ -116,14 +116,21 @@ class Scheduler(object):
 					guildProperties = await self.guildProperties.get(guildId, {})
 					if not guildProperties:
 						guildProperties = (await database.document(f"discord/properties/guilds/{guildId}").get()).to_dict()
-						if not guildProperties: guildProperties = {}
+						if not guildProperties:
+							print(f"Deleting all posts from {guildId} due to missing configuration")
+							async for post in guild.stream():
+								await post.reference.delete()
+							continue
 					if guildProperties.get("stale", {}).get("count", 0) > 0:
-						print(f"Skipping post {guildId} due to stale guild")
+						print(f"Skipping posts from {guildId} due to stale guild")
 						continue
 					accountId = guildProperties.get("settings", {}).get("setup", {}).get("connection")
+					if accountId is None:
+						print(f"Skipping posts from {guildId} due to incomplete setup")
+						continue
 					userProperties = await self.accountProperties.get(accountId, {})
 					if not userProperties:
-						print(f"Skipping post {guildId} due to missing user ({accountId}))")
+						print(f"Skipping posts from {guildId} due to missing user ({accountId}))")
 						continue
 
 					async for post in guild.stream():
