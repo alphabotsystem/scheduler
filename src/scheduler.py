@@ -26,7 +26,6 @@ from assets import static_storage
 from Processor import process_chart_arguments, process_heatmap_arguments, process_quote_arguments, process_task
 from DatabaseConnector import DatabaseConnector
 from CommandRequest import CommandRequest
-from helpers.utils import seconds_until_cycle, get_accepted_timeframes
 
 
 database = FirestoreClient()
@@ -81,12 +80,8 @@ class Scheduler(object):
 	async def run(self):
 		while self.isServiceAvailable:
 			try:
-				await sleep(seconds_until_cycle())
-				t = datetime.now().astimezone(timezone.utc)
-				timeframes = get_accepted_timeframes(t)
-
-				if "1m" in timeframes:
-					await self.process_posts()
+				await sleep((time() + 60) // 60 * 60 - time())
+				create_task(self.process_posts())
 
 			except (KeyboardInterrupt, SystemExit): return
 			except:
