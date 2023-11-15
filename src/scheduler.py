@@ -123,7 +123,7 @@ class Scheduler(object):
 					accountId = guildProperties.get("settings", {}).get("setup", {}).get("connection")
 					userProperties = await self.accountProperties.get(accountId, {})
 					if not userProperties:
-						print(f"Skipping post {guildId} due to missing user")
+						print(f"Skipping post {guildId} due to missing user ({accountId}))")
 						continue
 
 					async for post in guild.stream():
