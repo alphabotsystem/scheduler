@@ -444,7 +444,8 @@ class Scheduler(object):
 			headers = {"Authorization": f"Bot {environ[token]}"}
 			async with session.get(webhooksEndpoint, headers=headers) as response:
 				if response.status // 100 == 5:
-					raise Exception("discord is down")
+					print("Discord API is down")
+					return
 				elif response.status != 200:
 					raise NotFound(response, "couldn't get webhooks")
 				webhooks = await response.json()
