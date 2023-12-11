@@ -31,11 +31,6 @@ spec:
               secretKeyRef:
                 name: alpha-credentials
                 key: DISCORD_PRODUCTION_TOKEN
-          - name: TOKEN_HG60DTuv5GYWDUVX1ENONGdvEJ43
-            valueFrom:
-              secretKeyRef:
-                name: alpha-credentials
-                key: TOKEN_HG60DTuv5GYWDUVX1ENONGdvEJ43
           - name: TOKEN_N8V1MEBUJFSVP4IQMUXYYIEDFYI1
             valueFrom:
               secretKeyRef:
