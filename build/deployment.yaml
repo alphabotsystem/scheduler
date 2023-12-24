@@ -91,6 +91,11 @@ spec:
               secretKeyRef:
                 name: alpha-credentials
                 key: TOKEN_26FIYWEEZNHCMSIGFI81BMBBFER2
+          - name: TOKEN_LMMXP4VROGBRP6ENPNTVHPKVGJQ1
+            valueFrom:
+              secretKeyRef:
+                name: alpha-credentials
+                key: TOKEN_LMMXP4VROGBRP6ENPNTVHPKVGJQ1
           - name: IEXC_KEY
             valueFrom:
               secretKeyRef:
