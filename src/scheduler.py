@@ -105,7 +105,7 @@ class Scheduler(object):
 				requests = []
 				guilds = database.document("details/scheduledPosts").collections()
 
-				isMarketOpen = await self.is_market_open()
+				isMarketOpen = await self.is_market_open(session)
 
 				async for guild in guilds:
 					guildId = guild.id
@@ -521,7 +521,7 @@ class Scheduler(object):
 			print(format_exc())
 			if environ["PRODUCTION"]: self.logging.report_exception()
 
-	async def is_market_open(self):
+	async def is_market_open(self, session):
 		url = f"https://api.polygon.io/v1/marketstatus/now?apiKey={environ['POLYGON_KEY']}"
 		async with session.get(url) as resp:
 			if resp.status != 200: return True
