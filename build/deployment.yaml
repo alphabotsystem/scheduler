@@ -96,11 +96,11 @@ spec:
               secretKeyRef:
                 name: alpha-credentials
                 key: TOKEN_LMMXP4VROGBRP6ENPNTVHPKVGJQ1
-          - name: IEXC_KEY
+          - name: POLYGON_KEY
             valueFrom:
               secretKeyRef:
                 name: alpha-credentials
-                key: IEXC_KEY
+                key: POLYGON_KEY
           - name: TWELVEDATA_KEY
             valueFrom:
               secretKeyRef:

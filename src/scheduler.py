@@ -105,6 +105,8 @@ class Scheduler(object):
 				requests = []
 				guilds = database.document("details/scheduledPosts").collections()
 
+				isMarketOpen = await self.is_market_open()
+
 				async for guild in guilds:
 					guildId = guild.id
 					if not environ["PRODUCTION"] and guildId != "926518026457739304":
@@ -141,16 +143,9 @@ class Scheduler(object):
 						if data["start"] > time() or int(data["start"] / 60) % data["period"] != int(time() / 60) % data["period"]: continue
 
 						if data.get("exclude") == "outside us market hours":
-							today = datetime.now().astimezone(timezone.utc)
-							if today.hour < 14 or (today.hour == 14 and today.minute < 30) or today.hour > 21: continue
-							yesterday = today.replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=1)
-							startTime = yesterday.strftime("%Y%m%d")
-							url = f"https://cloud.iexapis.com/stable/ref-data/us/dates/trade/next/1/{startTime}?token={environ['IEXC_KEY']}"
-							async with session.get(url) as resp:
-								if resp.status != 200: continue
-								resp = await resp.json()
-								if resp[0]["date"] != today.strftime("%Y-%m-%d"):
-									continue
+							if not isMarketOpen:
+								continue
+
 						elif data.get("exclude") == "weekends":
 							weekday = datetime.now().astimezone(timezone.utc).weekday()
 							if weekday == 5 or weekday == 6:
@@ -525,6 +520,13 @@ class Scheduler(object):
 			print(f"{request.guildId}/{data['channelId']} set by {data['authorId']}")
 			print(format_exc())
 			if environ["PRODUCTION"]: self.logging.report_exception()
+
+	async def is_market_open(self):
+		url = f"https://api.polygon.io/v1/marketstatus/now?apiKey={environ['POLYGON_KEY']}"
+		async with session.get(url) as resp:
+			if resp.status != 200: return True
+			resp = await resp.json()
+			return resp["market"] == "open"
 
 if __name__ == "__main__":
 	scheduler = Scheduler()
