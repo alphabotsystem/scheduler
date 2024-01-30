@@ -245,7 +245,7 @@ class Scheduler(object):
 				timeframes = task.pop("timeframes")
 				for p, t in timeframes.items(): task[p]["currentTimeframe"] = t[0]
 
-				payload, responseMessage = await process_task(task, "chart", origin=origin)
+				payload, responseMessage = await process_task_with(session, task, "chart", origin=origin)
 
 				files, embeds = [], []
 				if responseMessage == "requires pro":
@@ -278,7 +278,7 @@ class Scheduler(object):
 				timeframes = task.pop("timeframes")
 				for p, t in timeframes.items(): task[p]["currentTimeframe"] = t[0]
 
-				payload, responseMessage = await process_task(task, "chart", origin=origin)
+				payload, responseMessage = await process_task_with(session, task, "chart", origin=origin)
 
 				files, embeds = [], []
 				if payload is None:
@@ -306,7 +306,7 @@ class Scheduler(object):
 				timeframes = task.pop("timeframes")
 				for p, t in timeframes.items(): task[p]["currentTimeframe"] = t[0]
 
-				payload, responseMessage = await process_task(task, "heatmap", origin=origin)
+				payload, responseMessage = await process_task_with(session, task, "heatmap", origin=origin)
 
 				files, embeds = [], []
 				if payload is None:
@@ -329,7 +329,7 @@ class Scheduler(object):
 					return [], [embed], [task]
 
 				currentTask = task.get(task.get("currentPlatform"))
-				payload, responseMessage = await process_task(task, "quote")
+				payload, responseMessage = await process_task_with(session, task, "quote")
 
 				if payload is None or "quotePrice" not in payload:
 					errorMessage = f"Requested quote for `{currentTask.get('ticker').get('name')}` is not available." if responseMessage is None else responseMessage
@@ -358,7 +358,7 @@ class Scheduler(object):
 					return [], [embed], [task]
 
 				currentTask = task.get(task.get("currentPlatform"))
-				payload, responseMessage = await process_task(task, "quote")
+				payload, responseMessage = await process_task_with(session, task, "quote")
 
 				if payload is None or "quoteVolume" not in payload:
 					errorMessage = f"Requested volume for `{currentTask.get('ticker').get('name')}` is not available." if responseMessage is None else responseMessage
