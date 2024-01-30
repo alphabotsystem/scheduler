@@ -418,7 +418,8 @@ class Scheduler(object):
 			else:
 				raise Exception(f"invalid command: {data['command']}")
 
-		except (KeyboardInterrupt, SystemExit): pass
+		except (KeyboardInterrupt, SystemExit) as e:
+			raise e
 		except:
 			print(data["authorId"], data["channelId"])
 			print(format_exc())
