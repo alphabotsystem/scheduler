@@ -96,6 +96,11 @@ spec:
               secretKeyRef:
                 name: alpha-credentials
                 key: TOKEN_WFFADSYKGWP2CH8W9PUHI2DBCQD2
+          - name: TOKEN_0LFH01IUELHSBXAPTKU4S7OG8UG2
+            valueFrom:
+              secretKeyRef:
+                name: alpha-credentials
+                key: TOKEN_0LFH01IUELHSBXAPTKU4S7OG8UG2
           - name: POLYGON_KEY
             valueFrom:
               secretKeyRef:
