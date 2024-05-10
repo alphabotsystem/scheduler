@@ -235,7 +235,7 @@ class Scheduler(object):
 
 			if data["command"] == "chart":
 				platforms = request.get_platform_order_for("c")
-				responseMessage, task = await process_chart_arguments(data["arguments"][1:], platforms, tickerId=data["arguments"][0].upper(), defaults=request.guildProperties["charting"])
+				responseMessage, task = await process_chart_arguments(data["arguments"][1:], platforms, tickerId=data["arguments"][0], defaults=request.guildProperties["charting"])
 
 				if responseMessage is not None:
 					description = "[Advanced Charting add-on](https://www.alpha.bot/pro/advanced-charting) unlocks additional assets, indicators, timeframes and more." if responseMessage.endswith("add-on.") else "Detailed guide with examples is available on [our website](https://www.alpha.bot/features/charting)."
@@ -267,7 +267,7 @@ class Scheduler(object):
 				return files, embeds, [task]
 
 			elif data["command"] == "layout":
-				responseMessage, task = await process_chart_arguments(data["arguments"][2:], ["TradingView Relay"], tickerId=data["arguments"][1].upper(), defaults=request.guildProperties["charting"])
+				responseMessage, task = await process_chart_arguments(data["arguments"][2:], ["TradingView Relay"], tickerId=data["arguments"][1], defaults=request.guildProperties["charting"])
 				task["TradingView Relay"]["url"] = data["arguments"][0]
 
 				if responseMessage is not None:
@@ -323,7 +323,7 @@ class Scheduler(object):
 
 			elif data["command"] == "price":
 				platforms = request.get_platform_order_for("p")
-				responseMessage, task = await process_quote_arguments(data["arguments"][1:], platforms, tickerId=data["arguments"][0].upper())
+				responseMessage, task = await process_quote_arguments(data["arguments"][1:], platforms, tickerId=data["arguments"][0])
 
 				if responseMessage is not None:
 					embed = Embed(title=responseMessage, description="Detailed guide with examples is available on [our website](https://www.alpha.bot/features/prices).", color=constants.colors["gray"])
@@ -352,7 +352,7 @@ class Scheduler(object):
 
 			elif data["command"] == "volume":
 				platforms = request.get_platform_order_for("v")
-				responseMessage, task = await process_quote_arguments(data["arguments"][1:], platforms, tickerId=data["arguments"][0].upper())
+				responseMessage, task = await process_quote_arguments(data["arguments"][1:], platforms, tickerId=data["arguments"][0])
 
 				if responseMessage is not None:
 					embed = Embed(title=responseMessage, description="Detailed guide with examples is available on [our website](https://www.alpha.bot/features/volume).", color=constants.colors["gray"])
