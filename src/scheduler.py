@@ -403,7 +403,7 @@ class Scheduler(object):
 						response = sorted(response, key=lambda k: k["change"])
 
 					for token in response[:9]:
-						embed.add_field(name=f"{token['name']} (`{token['symbol']}`)", value="{:+,.2f}%".format(token["change"]), inline=True)
+						embed.add_field(name=f"{token['name']} (`{token['symbol'].replace('/', '')}`)", value="{:+,.2f}%".format(token["change"]), inline=True)
 
 				else:
 					url = f"https://api.twelvedata.com/market_movers/{market.replace(' ', '_')}?apikey={environ['TWELVEDATA_KEY']}&direction={direction}&outputsize=50"
@@ -414,7 +414,7 @@ class Scheduler(object):
 							response["values"]
 						)
 						for asset in list(assets)[:9]:
-							embed.add_field(name=f"{asset['name']} (`{asset['symbol']}`)", value="{:+,.2f}%".format(asset["percent_change"]), inline=True)
+							embed.add_field(name=f"{asset['name']} (`{asset['symbol'].replace('/', '')}`)", value="{:+,.2f}%".format(asset["percent_change"]), inline=True)
 
 				return [], [embed], []
 
