@@ -111,6 +111,11 @@ spec:
               secretKeyRef:
                 name: alpha-credentials
                 key: TOKEN_QWMT0OT4G0TFBW5N27F6VGKHWQ82
+          - name: TOKEN_ESWAHZFI1PG1ZFMN2YSJGAFKPS02
+            valueFrom:
+              secretKeyRef:
+                name: alpha-credentials
+                key: TOKEN_ESWAHZFI1PG1ZFMN2YSJGAFKPS02
           - name: POLYGON_KEY
             valueFrom:
               secretKeyRef:
