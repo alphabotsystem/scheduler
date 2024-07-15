@@ -101,11 +101,6 @@ spec:
               secretKeyRef:
                 name: alpha-credentials
                 key: TOKEN_A8VQZAU7BXTBTP27ISAJQJTCSFF1
-          - name: TOKEN_ZCDMXTXP9CYA25WKGPQG68XZB202
-            valueFrom:
-              secretKeyRef:
-                name: alpha-credentials
-                key: TOKEN_ZCDMXTXP9CYA25WKGPQG68XZB202
           - name: TOKEN_QWMT0OT4G0TFBW5N27F6VGKHWQ82
             valueFrom:
               secretKeyRef:
