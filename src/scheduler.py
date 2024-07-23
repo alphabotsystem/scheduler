@@ -440,8 +440,9 @@ class Scheduler(object):
 				return
 
 			name, avatar, token = BOT_CONFIG.get(botId, BOT_CONFIG[ALPHABOT_ID])
+			channelId, threadId = request.channelId.split("/") if "/" in request.channelId else [request.channelId, None]
 
-			webhooksEndpoint = f"https://discord.com/api/channels/{request.channelId}/webhooks"
+			webhooksEndpoint = f"https://discord.com/api/channels/{channelId}/webhooks"
 			headers = {"Authorization": f"Bot {environ[token]}"}
 			async with session.get(webhooksEndpoint, headers=headers) as response:
 				if response.status // 100 == 5:
@@ -489,14 +490,25 @@ class Scheduler(object):
 				content = f"<@&{message.get('tag')}>"
 
 			webhook = Webhook.from_url(data["url"], session=session)
-			message = await webhook.send(
-				content=content,
-				files=files,
-				embeds=embeds,
-				username=name,
-				avatar_url=avatar,
-				wait=True
-			)
+			if threadId is None:
+				message = await webhook.send(
+					content=content,
+					files=files,
+					embeds=embeds,
+					username=name,
+					avatar_url=avatar,
+					wait=True
+				)
+			else:
+				message = await webhook.send(
+					content=content,
+					files=files,
+					embeds=embeds,
+					username=name,
+					avatar_url=avatar,
+					wait=True,
+					thread=threadId
+				)
 			print(f"Posted message {message.id} to {request.guildId}")
 
 			if data.get("status") == "failed":
@@ -515,9 +527,9 @@ class Scheduler(object):
 					"subtitle": "Scheduled posts",
 					"color": 6765239,
 					"user": data['authorId'],
-					"channel": data['channelId'],
+					"channel": channelId,
 					"backupUser": data['authorId'],
-					"backupChannel": data['channelId'],
+					"backupChannel": channelId,
 					"botId": data.get("botId", "401328409499664394")
 				})
 				await reference.set({"status": "failed", "timestamp": time()}, merge=True)
