@@ -13,7 +13,7 @@ from asyncio import sleep, wait, run, gather, create_task
 from uuid import uuid4
 from traceback import format_exc
 
-from discord import Webhook, Embed, File
+from discord import Webhook, Embed, File, Object
 from discord.errors import NotFound
 from discord.utils import MISSING
 from google.cloud.firestore import AsyncClient as FirestoreClient, DELETE_FIELD
@@ -507,7 +507,7 @@ class Scheduler(object):
 					username=name,
 					avatar_url=avatar,
 					wait=True,
-					thread=threadId
+					thread=Object(threadId)
 				)
 			print(f"Posted message {message.id} to {request.guildId}")
 
