@@ -185,6 +185,8 @@ class Scheduler(object):
 							]
 						requests.append((data, request, post))
 
+				print(f"Processing {len(requestMap.keys())} unique requests")
+
 				tasks = []
 				for key, [response, indices] in requestMap.items():
 					files, embeds, t = await response
