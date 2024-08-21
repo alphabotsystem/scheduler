@@ -19,6 +19,8 @@ from discord.utils import MISSING
 from google.cloud.firestore import AsyncClient as FirestoreClient, DELETE_FIELD
 from google.cloud.error_reporting import Client as ErrorReportingClient
 from google.cloud import pubsub_v1
+from google.auth.transport import requests
+from google.oauth2 import id_token
 from pycoingecko import CoinGeckoAPI
 
 from helpers import constants
@@ -100,10 +102,17 @@ class Scheduler(object):
 	# -------------------------
 
 	async def process_posts(self):
+		authReq = requests.Request()
+		token = id_token.fetch_id_token(authReq, url)
+		headers = {
+			"Authorization": "Bearer " + token,
+			"content-type": "application/json",
+			"accept": "application/json"
+		}
+
 		print("Started processing posts")
 		startTimestamp = time()
-		conn = TCPConnector(limit=5)
-		async with ClientSession(connector=conn) as session:
+		async with ClientSession(headers=headers) as session:
 			try:
 				requestMap = {}
 				requests = []
