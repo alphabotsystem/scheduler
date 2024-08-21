@@ -251,7 +251,7 @@ class Scheduler(object):
 				timeframes = task.pop("timeframes")
 				for p, t in timeframes.items(): task[p]["currentTimeframe"] = t[0]
 
-				payload, responseMessage = await process_task_with(session, task, "chart", origin=origin)
+				payload, responseMessage = await process_task_with(session, task, "chart", origin=origin, priority=False)
 
 				files, embeds = [], []
 				if responseMessage == "requires pro":
@@ -284,7 +284,7 @@ class Scheduler(object):
 				timeframes = task.pop("timeframes")
 				for p, t in timeframes.items(): task[p]["currentTimeframe"] = t[0]
 
-				payload, responseMessage = await process_task_with(session, task, "chart", origin=origin)
+				payload, responseMessage = await process_task_with(session, task, "chart", origin=origin, priority=False)
 
 				files, embeds = [], []
 				if payload is None:
@@ -312,7 +312,7 @@ class Scheduler(object):
 				timeframes = task.pop("timeframes")
 				for p, t in timeframes.items(): task[p]["currentTimeframe"] = t[0]
 
-				payload, responseMessage = await process_task_with(session, task, "heatmap", origin=origin)
+				payload, responseMessage = await process_task_with(session, task, "heatmap", origin=origin, priority=False)
 
 				files, embeds = [], []
 				if payload is None:
