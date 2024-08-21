@@ -103,7 +103,7 @@ class Scheduler(object):
 
 	async def process_posts(self):
 		authReq = auth.Request()
-		token = id_token.fetch_id_token(authReq, url)
+		token = id_token.fetch_id_token(authReq, "https://image-server-yzrdox65bq-uc.a.run.app/")
 		headers = {
 			"Authorization": "Bearer " + token,
 			"content-type": "application/json",
