@@ -23,7 +23,7 @@ from pycoingecko import CoinGeckoAPI
 
 from helpers import constants
 from assets import static_storage
-from Processor import process_chart_arguments, process_heatmap_arguments, process_quote_arguments, process_task_with
+from Processor import process_chart_arguments, process_heatmap_arguments, process_quote_arguments, process_task, process_task_with
 from DatabaseConnector import DatabaseConnector
 from CommandRequest import CommandRequest
 
