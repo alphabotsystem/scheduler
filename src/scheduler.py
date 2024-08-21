@@ -19,8 +19,6 @@ from discord.utils import MISSING
 from google.cloud.firestore import AsyncClient as FirestoreClient, DELETE_FIELD
 from google.cloud.error_reporting import Client as ErrorReportingClient
 from google.cloud import pubsub_v1
-from google.auth.transport import requests as auth
-from google.oauth2 import id_token
 from pycoingecko import CoinGeckoAPI
 
 from helpers import constants
@@ -102,17 +100,9 @@ class Scheduler(object):
 	# -------------------------
 
 	async def process_posts(self):
-		authReq = auth.Request()
-		token = id_token.fetch_id_token(authReq, "https://image-server-yzrdox65bq-uc.a.run.app/")
-		headers = {
-			"Authorization": "Bearer " + token,
-			"content-type": "application/json",
-			"accept": "application/json"
-		}
-
 		print("Started processing posts")
 		startTimestamp = time()
-		async with ClientSession(headers=headers) as session:
+		async with ClientSession() as session:
 			try:
 				requestMap = {}
 				requests = []
@@ -260,7 +250,7 @@ class Scheduler(object):
 				timeframes = task.pop("timeframes")
 				for p, t in timeframes.items(): task[p]["currentTimeframe"] = t[0]
 
-				payload, responseMessage = await process_task_with(session, task, "chart", origin=origin, priority=False, timeout=60)
+				payload, responseMessage = await process_task(task, "chart", origin=origin, priority=False, timeout=60)
 
 				files, embeds = [], []
 				if responseMessage == "requires pro":
@@ -293,7 +283,7 @@ class Scheduler(object):
 				timeframes = task.pop("timeframes")
 				for p, t in timeframes.items(): task[p]["currentTimeframe"] = t[0]
 
-				payload, responseMessage = await process_task_with(session, task, "chart", origin=origin, priority=False, timeout=60)
+				payload, responseMessage = await process_task(task, "chart", origin=origin, priority=False, timeout=60)
 
 				files, embeds = [], []
 				if payload is None:
@@ -321,7 +311,7 @@ class Scheduler(object):
 				timeframes = task.pop("timeframes")
 				for p, t in timeframes.items(): task[p]["currentTimeframe"] = t[0]
 
-				payload, responseMessage = await process_task_with(session, task, "heatmap", origin=origin, priority=False, timeout=60)
+				payload, responseMessage = await process_task(task, "heatmap", origin=origin, priority=False, timeout=60)
 
 				files, embeds = [], []
 				if payload is None:
