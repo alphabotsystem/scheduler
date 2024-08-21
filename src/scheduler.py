@@ -19,7 +19,7 @@ from discord.utils import MISSING
 from google.cloud.firestore import AsyncClient as FirestoreClient, DELETE_FIELD
 from google.cloud.error_reporting import Client as ErrorReportingClient
 from google.cloud import pubsub_v1
-from google.auth.transport import requests
+from google.auth.transport import requests as auth
 from google.oauth2 import id_token
 from pycoingecko import CoinGeckoAPI
 
@@ -102,7 +102,7 @@ class Scheduler(object):
 	# -------------------------
 
 	async def process_posts(self):
-		authReq = requests.Request()
+		authReq = auth.Request()
 		token = id_token.fetch_id_token(authReq, url)
 		headers = {
 			"Authorization": "Bearer " + token,
