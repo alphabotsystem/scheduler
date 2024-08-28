@@ -283,7 +283,7 @@ class Scheduler(object):
 				timeframes = task.pop("timeframes")
 				for p, t in timeframes.items(): task[p]["currentTimeframe"] = t[0]
 
-				payload, responseMessage = await process_task(task, "chart", origin=origin, priority=False, timeout=60)
+				payload, responseMessage = await process_task(task, "chart", origin=origin, priority=False, timeout=120)
 
 				files, embeds = [], []
 				if payload is None:
