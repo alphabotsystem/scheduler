@@ -101,11 +101,6 @@ spec:
               secretKeyRef:
                 name: alpha-credentials
                 key: TOKEN_HZJQNKF0YHABBO0K9LGC8O47IEG3
-          - name: TOKEN_U403FQIBFGTFRPLUERDBKP0V1W23
-            valueFrom:
-              secretKeyRef:
-                name: alpha-credentials
-                key: TOKEN_U403FQIBFGTFRPLUERDBKP0V1W23
           - name: TOKEN_QU3FTUHXFQBMCHUL9FLRK9BMPWR2
             valueFrom:
               secretKeyRef:
