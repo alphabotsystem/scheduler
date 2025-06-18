@@ -485,7 +485,7 @@ class Scheduler(object):
 			if data.get("message") is not None:
 				embeds.append(Embed(description=data.get("message"), color=constants.colors["purple"]))
 			if data.get("role") is not None:
-				content = f"<@&{message.get('role')}>"
+				content = f"<@&{data.get('role')}>"
 
 			webhook = Webhook.from_url(data["url"], session=session)
 			if threadId is None:
