@@ -71,11 +71,6 @@ spec:
               secretKeyRef:
                 name: alpha-credentials
                 key: TOKEN_RWU79SZBNJUFMRPQBGJ3ZTNLMWA2
-          - name: TOKEN_WJLIPYYYUTZZLVHYZGXYJZ2KICD2
-            valueFrom:
-              secretKeyRef:
-                name: alpha-credentials
-                key: TOKEN_WJLIPYYYUTZZLVHYZGXYJZ2KICD2
           - name: TOKEN_QWMT0OT4G0TFBW5N27F6VGKHWQ82
             valueFrom:
               secretKeyRef:
@@ -96,6 +91,11 @@ spec:
               secretKeyRef:
                 name: alpha-credentials
                 key: TOKEN_G27EPOPLSPWUAQALNJF7RPQPSHI2
+          - name: TOKEN_SU93NO2EQIZAEQEWP3LBSKIKAA43
+            valueFrom:
+              secretKeyRef:
+                name: alpha-credentials
+                key: TOKEN_SU93NO2EQIZAEQEWP3LBSKIKAA43
           - name: POLYGON_KEY
             valueFrom:
               secretKeyRef:
