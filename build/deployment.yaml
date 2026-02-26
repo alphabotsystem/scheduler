@@ -66,11 +66,6 @@ spec:
               secretKeyRef:
                 name: alpha-credentials
                 key: TOKEN_QWMT0OT4G0TFBW5N27F6VGKHWQ82
-          - name: TOKEN_RUIPUKYXUASUOOGGCF0QYT4I1RN2
-            valueFrom:
-              secretKeyRef:
-                name: alpha-credentials
-                key: TOKEN_RUIPUKYXUASUOOGGCF0QYT4I1RN2
           - name: TOKEN_8ZSFENTKEPNKDIAILE54MWNQNP62
             valueFrom:
               secretKeyRef:
