@@ -1,3 +1,5 @@
+TRY_V2_URL = "https://discord.com/oauth2/authorize?client_id=1388941386748919869&permissions=5066962434841664&integration_type=0&scope=bot"
+
 colors = {
 	"red": 0xF44336,
 	"pink": 0xE91E63,

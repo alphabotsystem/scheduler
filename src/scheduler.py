@@ -13,8 +13,9 @@ from asyncio import sleep, wait, run, gather, create_task
 from uuid import uuid4
 from traceback import format_exc
 
-from discord import Webhook, Embed, File, Object
+from discord import Webhook, Embed, File, Object, ButtonStyle
 from discord.errors import NotFound
+from discord.ui import View, Button
 from discord.utils import MISSING
 from google.cloud.firestore import AsyncClient as FirestoreClient, DELETE_FIELD
 from google.cloud.error_reporting import Client as ErrorReportingClient
@@ -35,6 +36,20 @@ TELEMETRY_TOPIC_NAME = "projects/nlc-bot-36685/topics/discord-telemetry"
 
 ALPHABOT_ID = "401328409499664394"
 ALPHABOT_BETA_ID = "487714342301859854"
+V2_BUTTON_BOTS = {ALPHABOT_ID, ALPHABOT_BETA_ID}
+
+def build_v2_view():
+	view = View(timeout=None)
+	view.add_item(Button(label="Try alpha.bot v2", url=constants.TRY_V2_URL, style=ButtonStyle.link))
+	return view
+
+def build_v1_deprecation_embed():
+	return Embed(
+		title="Scheduled posts are leaving Alpha.bot v1 on July 1st.",
+		description="To keep your scheduled posts running, switch over to Alpha.bot v2 using the button below.",
+		color=constants.colors["amber"]
+	)
+
 BOT_CONFIG = {
 	ALPHABOT_ID: ("Alpha", "https://storage.alpha.bot/Icon.png", "DISCORD_PRODUCTION_TOKEN"),
 	ALPHABOT_BETA_ID: ("Alpha (Beta)", MISSING, "DISCORD_PRODUCTION_TOKEN"),
@@ -478,27 +493,23 @@ class Scheduler(object):
 				embeds.append(Embed(description=data.get("message"), color=constants.colors["purple"]))
 			if data.get("role") is not None:
 				content = f"<@&{data.get('role')}>"
+			if botId in V2_BUTTON_BOTS:
+				embeds.append(build_v1_deprecation_embed())
 
 			webhook = Webhook.from_url(data["url"], session=session)
-			if threadId is None:
-				message = await webhook.send(
-					content=content,
-					files=files,
-					embeds=embeds,
-					username=name,
-					avatar_url=avatar,
-					wait=True
-				)
-			else:
-				message = await webhook.send(
-					content=content,
-					files=files,
-					embeds=embeds,
-					username=name,
-					avatar_url=avatar,
-					wait=True,
-					thread=Object(threadId)
-				)
+			sendArgs = {
+				"content": content,
+				"files": files,
+				"embeds": embeds,
+				"username": name,
+				"avatar_url": avatar,
+				"wait": True,
+			}
+			if botId in V2_BUTTON_BOTS:
+				sendArgs["view"] = build_v2_view()
+			if threadId is not None:
+				sendArgs["thread"] = Object(threadId)
+			message = await webhook.send(**sendArgs)
 			print(f"Posted message {message.id} to {request.guildId}")
 
 			if data.get("status") == "failed":
