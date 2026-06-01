@@ -43,13 +43,6 @@ def build_v2_view():
 	view.add_item(Button(label="Try alpha.bot v2", url=constants.TRY_V2_URL, style=ButtonStyle.link))
 	return view
 
-def build_v1_deprecation_embed():
-	return Embed(
-		title="Scheduled posts are leaving Alpha.bot v1 on July 1st.",
-		description="To keep your scheduled posts running, switch over to Alpha.bot v2 using the button below.",
-		color=constants.colors["amber"]
-	)
-
 BOT_CONFIG = {
 	ALPHABOT_ID: ("Alpha", "https://storage.alpha.bot/Icon.png", "DISCORD_PRODUCTION_TOKEN"),
 	ALPHABOT_BETA_ID: ("Alpha (Beta)", MISSING, "DISCORD_PRODUCTION_TOKEN"),
@@ -493,8 +486,6 @@ class Scheduler(object):
 				embeds.append(Embed(description=data.get("message"), color=constants.colors["purple"]))
 			if data.get("role") is not None:
 				content = f"<@&{data.get('role')}>"
-			if botId in V2_BUTTON_BOTS:
-				embeds.append(build_v1_deprecation_embed())
 
 			webhook = Webhook.from_url(data["url"], session=session)
 			sendArgs = {
