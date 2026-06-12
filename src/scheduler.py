@@ -4,7 +4,6 @@ environ["PRODUCTION"] = environ["PRODUCTION"] if "PRODUCTION" in environ and env
 from signal import signal, SIGINT, SIGTERM
 from time import time
 from random import randint
-from orjson import dumps
 from io import BytesIO
 from base64 import b64encode
 from datetime import datetime, timedelta, timezone
@@ -19,7 +18,6 @@ from discord.ui import View, Button
 from discord.utils import MISSING
 from google.cloud.firestore import AsyncClient as FirestoreClient, DELETE_FIELD
 from google.cloud.error_reporting import Client as ErrorReportingClient
-from google.cloud import pubsub_v1
 from pycoingecko import CoinGeckoAPI
 
 from helpers import constants
@@ -30,9 +28,6 @@ from CommandRequest import CommandRequest
 
 
 database = FirestoreClient()
-publisher = pubsub_v1.PublisherClient()
-REQUESTS_TOPIC_NAME = "projects/nlc-bot-36685/topics/discord-requests"
-TELEMETRY_TOPIC_NAME = "projects/nlc-bot-36685/topics/discord-telemetry"
 
 ALPHABOT_ID = "401328409499664394"
 ALPHABOT_BETA_ID = "487714342301859854"
@@ -192,36 +187,6 @@ class Scheduler(object):
 			except:
 				print(format_exc())
 				if environ["PRODUCTION"]: self.logging.report_exception()
-
-	async def log_request(self, command, request, tasks, telemetry=None):
-		if not environ["PRODUCTION"]: return
-		timestamp = int(time())
-		for task in tasks:
-			currentTask = task.get(task.get("currentPlatform"))
-			base = currentTask.get("ticker", {}).get("base")
-			if command == "scheduled layout": command += " " + task["TradingView Relay"]["url"]
-			if base is None: base = currentTask.get("ticker", {}).get("id", "")
-			publisher.publish(REQUESTS_TOPIC_NAME, dumps({
-				"timestamp": timestamp,
-				"command": command,
-				"user": str(request.authorId),
-				"guild": str(request.guildId),
-				"channel": str(request.channelId),
-				"base": base,
-				"platform": task.get("currentPlatform"),
-				"count": task.get("requestCount", 1)
-			}))
-		if telemetry is not None:
-			publisher.publish(TELEMETRY_TOPIC_NAME, dumps({
-				"timestamp": timestamp,
-				"command": command,
-				"database": telemetry["database"],
-				"prelight": telemetry["prelight"],
-				"parser": telemetry["parser"],
-				"request": telemetry["request"],
-				"response": telemetry["response"],
-				"count": task.get("requestCount", 1)
-			}))
 
 	async def process_request(self, session, request, data):
 		try:
@@ -500,8 +465,6 @@ class Scheduler(object):
 
 			if data.get("status") == "failed":
 				await reference.set({"status": DELETE_FIELD, "timestamp": DELETE_FIELD}, merge=True)
-
-			await self.log_request("scheduled " + data["command"], request, tasks)
 
 		except (KeyboardInterrupt, SystemExit): pass
 		except NotFound:
