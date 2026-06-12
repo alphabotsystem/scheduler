@@ -31,36 +31,11 @@ spec:
               secretKeyRef:
                 name: alpha-credentials
                 key: DISCORD_PRODUCTION_TOKEN
-          - name: TOKEN_N8V1MEBUJFSVP4IQMUXYYIEDFYI1
-            valueFrom:
-              secretKeyRef:
-                name: alpha-credentials
-                key: TOKEN_N8V1MEBUJFSVP4IQMUXYYIEDFYI1
-          - name: TOKEN_SHDNTSTH4TPFNG0CO1LBVDANLVO2
-            valueFrom:
-              secretKeyRef:
-                name: alpha-credentials
-                key: TOKEN_SHDNTSTH4TPFNG0CO1LBVDANLVO2
-          - name: TOKEN_26FIYWEEZNHCMSIGFI81BMBBFER2
-            valueFrom:
-              secretKeyRef:
-                name: alpha-credentials
-                key: TOKEN_26FIYWEEZNHCMSIGFI81BMBBFER2
           - name: TOKEN_RWU79SZBNJUFMRPQBGJ3ZTNLMWA2
             valueFrom:
               secretKeyRef:
                 name: alpha-credentials
                 key: TOKEN_RWU79SZBNJUFMRPQBGJ3ZTNLMWA2
-          - name: TOKEN_8ZSFENTKEPNKDIAILE54MWNQNP62
-            valueFrom:
-              secretKeyRef:
-                name: alpha-credentials
-                key: TOKEN_8ZSFENTKEPNKDIAILE54MWNQNP62
-          - name: TOKEN_APIS3KDVEZZRDSA6OIEDO3EZDQ33
-            valueFrom:
-              secretKeyRef:
-                name: alpha-credentials
-                key: TOKEN_APIS3KDVEZZRDSA6OIEDO3EZDQ33
           - name: POLYGON_KEY
             valueFrom:
               secretKeyRef:
